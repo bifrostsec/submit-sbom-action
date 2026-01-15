@@ -8,14 +8,25 @@ import {submitSbom} from './submitter'
  * @returns SubmitConfig with all parsed inputs
  */
 function getConfig(): SubmitConfig {
+    const retryAttempts = parseInt(core.getInput('retry-attempts') || '3', 10)
+    const retryDelay = parseInt(core.getInput('retry-delay') || '5', 10)
+
+    // Validate numeric inputs
+    if (isNaN(retryAttempts) || retryAttempts < 1) {
+        throw new Error(`Invalid input "retry-attempts": expected a positive integer, got "${core.getInput('retry-attempts')}"`)
+    }
+    if (isNaN(retryDelay) || retryDelay < 0) {
+        throw new Error(`Invalid input "retry-delay": expected a non-negative integer, got "${core.getInput('retry-delay')}"`)
+    }
+
     return {
         apiToken: core.getInput('api-token', {required: true}),
         service: core.getInput('service', {required: true}),
         version: core.getInput('version', {required: true}),
         image: core.getInput('image', {required: true}),
         sbomPath: core.getInput('sbom-path', {required: true}),
-        retryAttempts: parseInt(core.getInput('retry-attempts') || '3', 10),
-        retryDelay: parseInt(core.getInput('retry-delay') || '5', 10)
+        retryAttempts,
+        retryDelay
     }
 }
 
