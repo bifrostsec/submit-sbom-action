@@ -35,11 +35,23 @@ export function validateSbomFile(sbomPath: string): void {
 }
 
 /**
- * Reads the SBOM file contents
+ * Reads the SBOM file contents and validates it's valid JSON
  * @param sbomPath - Path to the SBOM file
  * @returns File contents as string
+ * @throws Error if file cannot be read or is not valid JSON
  */
 export function readSbomFile(sbomPath: string): string {
     const absolutePath = path.resolve(sbomPath)
-    return fs.readFileSync(absolutePath, 'utf-8')
+    const content = fs.readFileSync(absolutePath, 'utf-8')
+
+    // Validate JSON format
+    try {
+        JSON.parse(content)
+        core.info('✓ SBOM file is valid JSON')
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        throw new Error(`SBOM file is not valid JSON: ${errorMessage}`)
+    }
+
+    return content
 }
