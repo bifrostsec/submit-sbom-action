@@ -1,0 +1,35 @@
+{
+  "name": "submit-sbom-action",
+  "version": "1.0.0",
+  "description": "A GitHub Action that submits Software Bill of Materials (SBOM) files to the bifrost API to analyze your services for known vulnerabilities and security risks.",
+  "author": "bifrost security",
+  "private": true,
+  "main": "dist/index.js",
+  "keywords": ["actions", "sbom", "security", "bifrost"],
+  "engines": {
+    "node": ">=21"
+  },
+  "scripts": {
+    "build": "npx @vercel/ncc build src/index.ts && npx convert-action",
+    "format:write": "npx prettier --write .",
+    "format:check": "npx prettier --check ."
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/http-client": "^2.2.3",
+    "convert-action": "^0.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "@typescript-eslint/eslint-plugin": "^8.6.0",
+    "@typescript-eslint/parser": "^8.6.0",
+    "@vercel/ncc": "^0.38.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jsonc": "^2.16.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "prettier-eslint": "^16.3.0",
+    "typescript": "^5.6.2"
+  }
+}
