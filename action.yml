@@ -35,10 +35,6 @@ inputs:
     required: false
     default: 'true'
 outputs:
-  http-status:
-    description: HTTP status code from the API response
-  response-body:
-    description: Response body from the API
   success:
     description: Whether the submission was successful (true/false)
 runs:

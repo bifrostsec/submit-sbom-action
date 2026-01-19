@@ -109,9 +109,7 @@ The action includes automatic retry logic for handling transient network errors.
 
 | Output | Description |
 |--------|-------------|
-| `http-status` | HTTP status code from the API response |
 | `success` | Whether the submission was successful (true/false) |
-| `response-body` | Raw response body from the API |
 
 ## API Requirements
 

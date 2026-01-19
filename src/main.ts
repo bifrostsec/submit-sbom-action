@@ -69,8 +69,6 @@ export async function run(): Promise<void> {
         const result = await submitSbom(config, sbomContent)
 
         // Set outputs
-        core.setOutput('http-status', result.httpStatus.toString())
-        core.setOutput('response-body', result.responseBody)
         core.setOutput('success', result.success.toString())
 
         // Fail the action if submission was not successful
