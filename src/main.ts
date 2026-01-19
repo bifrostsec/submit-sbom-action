@@ -26,7 +26,8 @@ function getConfig(): SubmitConfig {
         image: core.getInput('image', {required: true}),
         sbomPath: core.getInput('sbom-path', {required: true}),
         retryAttempts,
-        retryDelay
+        retryDelay,
+        apiHost: core.getInput('api-host') || 'https://portal.bifrostsec.com'
     }
 }
 

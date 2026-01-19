@@ -26,6 +26,10 @@ inputs:
     description: Delay in seconds between retry attempts
     required: false
     default: '5'
+  api-host:
+    description: Custom API host URL
+    required: false
+    default: 'https://portal.bifrostsec.com'
 outputs:
   http-status:
     description: HTTP status code from the API response

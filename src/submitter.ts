@@ -5,19 +5,21 @@ import { SubmitConfig, SubmitResult } from './types'
 
 /**
  * Builds the API URL with URL-encoded image parameter
+ * @param apiHost - API host URL
  * @param service - Service name
  * @param version - Service version
  * @param image - Container image name (will be URL encoded)
  * @returns Complete API URL
  */
 function buildApiUrl(
+  apiHost: string,
   service: string,
   version: string,
   image: string
 ): string {
   // URL encode the image parameter (replaces jq -sRr @uri)
   const encodedImage = encodeURIComponent(image)
-  return `https://portal.bifrostsec.com/api/v2/service/${service}/version/${version}/sbom?image=${encodedImage}`
+  return `${apiHost}/api/v2/service/${service}/version/${version}/sbom?image=${encodedImage}`
 }
 
 /**
@@ -86,7 +88,7 @@ export async function submitSbom(
   ])
 
   // Build API URL
-  const url = buildApiUrl(config.service, config.version, config.image)
+  const url = buildApiUrl(config.apiHost, config.service, config.version, config.image)
 
   // Retry loop
   let lastResult: SubmitResult | null = null

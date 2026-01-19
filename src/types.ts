@@ -9,6 +9,7 @@ export interface SubmitConfig {
     sbomPath: string
     retryAttempts: number
     retryDelay: number
+    apiHost: string
 }
 
 /**
