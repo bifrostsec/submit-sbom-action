@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "keywords": ["actions", "sbom", "security", "bifrost"],
   "engines": {
-    "node": ">=21"
+    "node": ">=20"
   },
   "scripts": {
     "build": "npx @vercel/ncc build src/index.ts && npx convert-action",
