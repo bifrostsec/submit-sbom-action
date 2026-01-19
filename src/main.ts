@@ -22,7 +22,7 @@ function getConfig(): SubmitConfig {
     return {
         apiToken: core.getInput('api-token', {required: true}),
         service: core.getInput('service', {required: true}),
-        version: core.getInput('version', {required: true}),
+        serviceVersion: core.getInput('service-version', {required: true}),
         image: core.getInput('image', {required: true}),
         sbomPath: core.getInput('sbom-path', {required: true}),
         retryAttempts,

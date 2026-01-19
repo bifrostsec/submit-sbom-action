@@ -78,7 +78,7 @@ export async function submitSbom(
 ): Promise<SubmitResult> {
   core.info('Submitting SBOM to Bifrost API...')
   core.info(`Service: ${config.service}`)
-  core.info(`Version: ${config.version}`)
+  core.info(`Service version: ${config.serviceVersion}`)
   core.info(`Image: ${config.image}`)
 
   // Create HTTP client with Bearer authentication
@@ -88,7 +88,7 @@ export async function submitSbom(
   ])
 
   // Build API URL
-  const url = buildApiUrl(config.apiHost, config.service, config.version, config.image)
+  const url = buildApiUrl(config.apiHost, config.service, config.serviceVersion, config.image)
 
   // Retry loop
   let lastResult: SubmitResult | null = null

@@ -34,7 +34,7 @@ jobs:
         with:
           api-token: ${{ secrets.BIFROST_API_TOKEN }}
           service: 'my-service'
-          version: 'v1.0.0'
+          service-version: 'v1.0.0'
           image: 'my-org/my-service:latest'
           sbom-path: 'build/sbom.spdx'
 ```
@@ -70,7 +70,7 @@ jobs:
         with:
           api-token: ${{ secrets.BIFROST_API_TOKEN }}
           service: 'my-service'
-          version: 'v1.0.0'
+          service-version: 'v1.0.0'
           image: 'my-org/my-service:latest'
           sbom-path: 'build/sbom.spdx'
 ```
@@ -85,7 +85,7 @@ The action includes automatic retry logic for handling transient network errors.
         with:
           api-token: ${{ secrets.BIFROST_API_TOKEN }}
           service: 'my-service'
-          version: 'v1.0.0'
+          service-version: 'v1.0.0'
           image: 'my-org/my-service:latest'
           sbom-path: 'build/sbom.spdx'
           retry-attempts: '5'
@@ -94,15 +94,15 @@ The action includes automatic retry logic for handling transient network errors.
 
 ## Inputs
 
-| Input | Description                                  | Required | Default |
-|-------|----------------------------------------------|----------|---------|
-| `api-token` | Bearer token for Bifrost API authentication  | Yes | -       |
-| `service` | Your Service name                            | Yes | -       |
-| `version` | Your Service version                         | Yes | -       |
-| `image` | Container image name                         | Yes | -       |
-| `sbom-path` | Path to the SBOM file to submit              | Yes | -       |
-| `retry-attempts` | Number of retry attempts for failed requests | No | `3`     |
-| `retry-delay` | Delay in seconds between retry attempts      | No | `5`     |
+| Input             | Description                                  | Required | Default |
+|-------------------|----------------------------------------------|----------|---------|
+| `api-token`       | Bearer token for Bifrost API authentication  | Yes | -       |
+| `service`         | Your Service name                            | Yes | -       |
+| `service-version` | Your Service version                         | Yes | -       |
+| `image`           | Container image name                         | Yes | -       |
+| `sbom-path`       | Path to the SBOM file to submit              | Yes | -       |
+| `retry-attempts`  | Number of retry attempts for failed requests | No | `3`     |
+| `retry-delay`     | Delay in seconds between retry attempts      | No | `5`     |
 
 ## Outputs
 

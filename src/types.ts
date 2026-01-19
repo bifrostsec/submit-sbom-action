@@ -4,7 +4,7 @@
 export interface SubmitConfig {
     apiToken: string
     service: string
-    version: string
+    serviceVersion: string
     image: string
     sbomPath: string
     retryAttempts: number
