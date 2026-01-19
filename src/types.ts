@@ -10,6 +10,7 @@ export interface SubmitConfig {
     retryAttempts: number
     retryDelay: number
     apiHost: string
+    failOnError: boolean
 }
 
 /**

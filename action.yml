@@ -29,7 +29,11 @@ inputs:
   api-host:
     description: Custom API host URL
     required: false
-    default: 'https://portal.bifrostsec.com'
+    default: https://portal.bifrostsec.com
+  fail-on-error:
+    description: Whether to fail the workflow when SBOM submission fails
+    required: false
+    default: 'true'
 outputs:
   http-status:
     description: HTTP status code from the API response
