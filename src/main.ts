@@ -36,9 +36,6 @@ function getConfig(): SubmitConfig {
  * @returns Promise that resolves when action is complete
  */
 export async function run(): Promise<void> {
-    // Parse inputs early so we can access failOnError in catch block
-    const failOnError = core.getInput('fail-on-error') !== 'false'
-
     try {
         // Parse inputs
         const config = getConfig()
