@@ -49,9 +49,6 @@ export async function run(): Promise<void> {
         // Submit SBOM with retry logic
         const result = await submitSbom(config, sbomContent)
 
-        // Set outputs
-        core.setOutput('success', result.success.toString())
-
         // Fail the action if submission was not successful
         if (!result.success) {
             const message = `Failed to submit SBOM after ${config.retryAttempts} attempts`

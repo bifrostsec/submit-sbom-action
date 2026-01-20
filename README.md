@@ -104,12 +104,6 @@ The action includes automatic retry logic for handling transient network errors.
 | `retry-attempts`  | Number of retry attempts for failed requests | No | `3`     |
 | `retry-delay`     | Delay in seconds between retry attempts      | No | `5`     |
 
-## Outputs
-
-| Output | Description |
-|--------|-------------|
-| `success` | Whether the submission was successful (true/false) |
-
 ## API Requirements
 
 This action submits SBOMs to the Bifrost API using the following endpoint:

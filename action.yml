@@ -30,9 +30,6 @@ inputs:
     description: Custom API host URL
     required: false
     default: https://portal.bifrostsec.com
-outputs:
-  success:
-    description: Whether the submission was successful (true/false)
 runs:
   using: node20
   main: dist/index.js
