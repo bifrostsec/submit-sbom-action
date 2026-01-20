@@ -1,0 +1,35 @@
+name: Submit SBOM to bifrost
+description: Submits an SBOM file to the bifrost API for CVE tracking
+author: bifrost security
+inputs:
+  api-token:
+    description: Bearer token for Bifrost API authentication
+    required: true
+  service:
+    description: Service name
+    required: true
+  service-version:
+    description: Service version
+    required: true
+  image:
+    description: Container image name
+    required: false
+  sbom-path:
+    description: Path to the SBOM file to submit
+    required: true
+    default: build/sbom.spdx
+  retry-attempts:
+    description: Number of retry attempts for failed requests
+    required: false
+    default: '3'
+  retry-delay:
+    description: Delay in seconds between retry attempts
+    required: false
+    default: '5'
+  api-host:
+    description: Custom API host URL
+    required: false
+    default: https://portal.bifrostsec.com
+runs:
+  using: node20
+  main: dist/index.js
