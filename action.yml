@@ -1,6 +1,9 @@
 name: Submit SBOM to bifrost
 description: Submits an SBOM file to the bifrost API for CVE tracking
 author: bifrost security
+branding:
+  icon: 'upload'
+  color: 'white'
 inputs:
   api-token:
     description: Bearer token for Bifrost API authentication
