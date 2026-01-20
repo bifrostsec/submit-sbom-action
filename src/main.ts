@@ -4,19 +4,6 @@ import {validateSbomFile, readSbomFile} from './validator'
 import {submitSbom} from './submitter'
 
 /**
- * Handles errors based on the fail-on-error setting
- * @param message - The error message to log
- * @param failOnError - Whether to fail the action or just warn
- */
-function handleError(message: string, failOnError: boolean): void {
-    if (failOnError) {
-        core.setFailed(message)
-    } else {
-        core.warning(message)
-    }
-}
-
-/**
  * Parses action inputs into configuration object
  * @returns SubmitConfig with all parsed inputs
  */
@@ -32,8 +19,6 @@ function getConfig(): SubmitConfig {
         throw new Error(`Invalid input "retry-delay": expected a non-negative integer, got "${core.getInput('retry-delay')}"`)
     }
 
-    const failOnError = core.getInput('fail-on-error') !== 'false'
-
     return {
         apiToken: core.getInput('api-token', {required: true}),
         service: core.getInput('service', {required: true}),
@@ -43,7 +28,6 @@ function getConfig(): SubmitConfig {
         retryAttempts,
         retryDelay,
         apiHost: core.getInput('api-host') || 'https://portal.bifrostsec.com',
-        failOnError
     }
 }
 
@@ -74,11 +58,11 @@ export async function run(): Promise<void> {
         // Fail the action if submission was not successful
         if (!result.success) {
             const message = `Failed to submit SBOM after ${config.retryAttempts} attempts`
-            handleError(message, failOnError)
+            core.setFailed(message)
         }
     } catch (error) {
         // Handle any unexpected errors
         const message = error instanceof Error ? error.message : String(error)
-        handleError(message, failOnError)
+        core.setFailed(message)
     }
 }

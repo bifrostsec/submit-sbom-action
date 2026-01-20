@@ -10,7 +10,6 @@ export interface SubmitConfig {
     retryAttempts: number
     retryDelay: number
     apiHost: string
-    failOnError: boolean
 }
 
 /**
@@ -20,12 +19,4 @@ export interface SubmitResult {
     success: boolean
     httpStatus: number
     responseBody: string
-}
-
-/**
- * Options for retry logic
- */
-export interface RetryOptions {
-    maxAttempts: number
-    delaySeconds: number
 }

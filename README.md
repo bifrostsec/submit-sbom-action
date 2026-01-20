@@ -103,7 +103,6 @@ The action includes automatic retry logic for handling transient network errors.
 | `sbom-path`       | Path to the SBOM file to submit              | Yes | -       |
 | `retry-attempts`  | Number of retry attempts for failed requests | No | `3`     |
 | `retry-delay`     | Delay in seconds between retry attempts      | No | `5`     |
-| `fail-on-error`   | Whether to fail the workflow when SBOM submission fails | No | `true` |
 
 ## Outputs
 
