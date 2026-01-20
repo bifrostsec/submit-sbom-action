@@ -92,6 +92,8 @@ The action includes automatic retry logic for handling transient network errors.
           retry-delay: '10'
 ```
 
+**Note:** If you want the workflow to continue even if this action fails, you can use GitHub's built-in `continue-on-error` setting. See the [GitHub Actions workflow syntax documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error) for more information.
+
 ## Inputs
 
 | Input             | Description                                  | Required | Default |
@@ -103,6 +105,12 @@ The action includes automatic retry logic for handling transient network errors.
 | `sbom-path`       | Path to the SBOM file to submit              | Yes | -       |
 | `retry-attempts`  | Number of retry attempts for failed requests | No | `3`     |
 | `retry-delay`     | Delay in seconds between retry attempts      | No | `5`     |
+
+## Outputs
+
+This action does not provide explicit output values. Instead, it uses GitHub Actions' standard exit behavior:
+- On successful SBOM submission, the action completes successfully
+- On failure, the action fails and stops the workflow (unless `continue-on-error` is set)
 
 ## API Requirements
 
