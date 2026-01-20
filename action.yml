@@ -13,7 +13,7 @@ inputs:
     required: true
   image:
     description: Container image name
-    required: true
+    required: false
   sbom-path:
     description: Path to the SBOM file to submit
     required: true

@@ -8,18 +8,24 @@ import { SubmitConfig, SubmitResult } from './types'
  * @param apiHost - API host URL
  * @param service - Service name
  * @param version - Service version
- * @param image - Container image name (will be URL encoded)
+ * @param image - Optional container image name (will be URL encoded if provided)
  * @returns Complete API URL
  */
 function buildApiUrl(
   apiHost: string,
   service: string,
   version: string,
-  image: string
+  image?: string
 ): string {
-  // URL encode the image parameter (replaces jq -sRr @uri)
-  const encodedImage = encodeURIComponent(image)
-  return `${apiHost}/api/v2/service/${service}/version/${version}/sbom?image=${encodedImage}`
+  const baseUrl = `${apiHost}/api/v2/service/${service}/version/${version}/sbom`
+
+  // Add image query parameter only if provided
+  if (image) {
+    const encodedImage = encodeURIComponent(image)
+    return `${baseUrl}?image=${encodedImage}`
+  }
+
+  return baseUrl
 }
 
 /**
@@ -79,7 +85,9 @@ export async function submitSbom(
   core.info('Submitting SBOM to Bifrost API...')
   core.info(`Service: ${config.service}`)
   core.info(`Service version: ${config.serviceVersion}`)
-  core.info(`Image: ${config.image}`)
+  if (config.image) {
+    core.info(`Image: ${config.image}`)
+  }
 
   // Create HTTP client with Bearer authentication
   const bearerCredentialHandler = new BearerCredentialHandler(config.apiToken)

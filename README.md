@@ -98,13 +98,13 @@ The action includes automatic retry logic for handling transient network errors.
 
 | Input             | Description                                  | Required | Default |
 |-------------------|----------------------------------------------|----------|---------|
-| `api-token`       | Bearer token for Bifrost API authentication  | Yes | -       |
-| `service`         | Your Service name                            | Yes | -       |
-| `service-version` | Your Service version                         | Yes | -       |
-| `image`           | Container image name                         | Yes | -       |
-| `sbom-path`       | Path to the SBOM file to submit              | Yes | -       |
-| `retry-attempts`  | Number of retry attempts for failed requests | No | `3`     |
-| `retry-delay`     | Delay in seconds between retry attempts      | No | `5`     |
+| `api-token`       | Bearer token for Bifrost API authentication  | Yes      | -       |
+| `service`         | Your Service name                            | Yes      | -       |
+| `service-version` | Your Service version                         | Yes      | -       |
+| `sbom-path`       | Path to the SBOM file to submit              | Yes      | -       |
+| `image`           | Container image name                         | No       | -       |
+| `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     |
+| `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     |
 
 ## Outputs
 
