@@ -77,7 +77,7 @@ jobs:
 
 ### Advanced Example with Custom Retry Configuration
 
-The action includes automatic retry logic for handling transient network errors. You can customize the retry behavior:
+The action accepts retry-related inputs for compatibility with existing workflows:
 
 ```yaml
       - name: Send SBOM to bifrost
@@ -96,15 +96,15 @@ The action includes automatic retry logic for handling transient network errors.
 
 ## Inputs
 
-| Input             | Description                                  | Required | Default |
-|-------------------|----------------------------------------------|----------|---------|
-| `api-token`       | Bearer token for Bifrost API authentication  | Yes      | -       |
-| `service`         | Your Service name                            | Yes      | -       |
-| `service-version` | Your Service version                         | Yes      | -       |
-| `sbom-path`       | Path to the SBOM file to submit              | Yes      | -       |
-| `image`           | Container image name                         | No       | -       |
-| `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     |
-| `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     |
+| Input             | Description                                  | Required | Default | Notes                                  |
+|-------------------|----------------------------------------------|----------|---------|----------------------------------------|
+| `api-token`       | Bearer token for Bifrost API authentication  | Yes      | -       | -                                      |
+| `service`         | Your Service name                            | Yes      | -       | -                                      |
+| `service-version` | Your Service version                         | Yes      | -       | -                                      |
+| `sbom-path`       | Path to the SBOM file to submit              | Yes      | -       | -                                      |
+| `image`           | Container image name                         | No       | -       | **DEPRECATED** (accepted, but ignored) |
+| `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     | Accepted, but currently ignored        |
+| `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     | Accepted, but currently ignored        |
 
 ## Outputs
 
@@ -114,10 +114,10 @@ This action does not provide explicit output values. Instead, it uses GitHub Act
 
 ## API Requirements
 
-This action submits SBOMs to the Bifrost API using the following endpoint:
+This action submits SBOMs to the Bifrost API using `bifrost-cli`, which calls the following endpoint:
 
-```
-POST https://portal.bifrostsec.com/api/v2/service/{service}/version/{version}/sbom?image={image}
+``` 
+POST https://portal.bifrostsec.com/api/v2/service/{service}/version/{version}/sbom
 ```
 
 The request includes:

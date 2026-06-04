@@ -34,5 +34,51 @@ inputs:
     required: false
     default: https://portal.bifrostsec.com
 runs:
-  using: node20
-  main: dist/index.js
+  using: composite
+  steps:
+    - name: Validate Inputs
+      shell: bash
+      env:
+        ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
+        ACTION_IMAGE: ${{ inputs.image }}
+        ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
+        ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/validate-inputs.sh"
+
+    - name: Resolve CLI Asset Name
+      id: resolve-asset
+      shell: bash
+      env:
+        RUNNER_OS: ${{ runner.os }}
+        RUNNER_ARCH: ${{ runner.arch }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/resolve-cli-asset.sh"
+
+    - name: Download CLI
+      id: download-cli
+      uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
+      with:
+        repository: bifrostsec/bifrost-cli
+        tag: v0.1.4
+        fileName: ${{ steps.resolve-asset.outputs.asset_name }}
+        out-file-path: .bifrost-cli
+
+    - name: Verify and Prepare CLI
+      id: prepare-cli
+      shell: bash
+      env:
+        CLI_PATH: ${{ fromJson(steps.download-cli.outputs.downloaded_files)[0] }}
+        ASSET_NAME: ${{ steps.resolve-asset.outputs.asset_name }}
+        EXPECTED_SHA: ${{ steps.resolve-asset.outputs.expected_sha }}
+        RUNNER_OS: ${{ runner.os }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/prepare-cli.sh"
+
+    - name: Execute Tool
+      shell: bash
+      env:
+        ACTION_API_TOKEN: ${{ inputs.api-token }}
+        ACTION_SERVICE: ${{ inputs.service }}
+        ACTION_SERVICE_VERSION: ${{ inputs.service-version }}
+        ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
+        ACTION_API_HOST: ${{ inputs.api-host }}
+        CLI_PATH: ${{ steps.prepare-cli.outputs.cli_path }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
