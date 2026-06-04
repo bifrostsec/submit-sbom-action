@@ -18,7 +18,7 @@ inputs:
     description: Container image name
     required: false
   sbom-path:
-    description: Path to the SBOM file to submit
+    description: Path to the SBOM file to submit, or a newline-separated list of paths
     required: true
     default: build/sbom.spdx
   retry-attempts:

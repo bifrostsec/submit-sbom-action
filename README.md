@@ -92,6 +92,22 @@ The action accepts retry-related inputs for compatibility with existing workflow
           retry-delay: '10'
 ```
 
+### Multiple SBOM Files
+
+Provide `sbom-path` as a multiline value to upload multiple SBOM files in one action invocation:
+
+```yaml
+      - name: Send SBOMs to bifrost
+        uses: bifrostsec/submit-sbom-action@v1
+        with:
+          api-token: ${{ secrets.BIFROST_API_TOKEN }}
+          service: 'my-service'
+          service-version: 'v1.0.0'
+          sbom-path: |
+            build/backend.cdx.json
+            build/frontend.cdx.json
+```
+
 **Note:** If you want the workflow to continue even if this action fails, you can use GitHub's built-in `continue-on-error` setting. See the [GitHub Actions workflow syntax documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error) for more information.
 
 ## Inputs
@@ -101,7 +117,7 @@ The action accepts retry-related inputs for compatibility with existing workflow
 | `api-token`       | Bearer token for Bifrost API authentication  | Yes      | -       | -                                      |
 | `service`         | Your Service name                            | Yes      | -       | -                                      |
 | `service-version` | Your Service version                         | Yes      | -       | -                                      |
-| `sbom-path`       | Path to the SBOM file to submit              | Yes      | -       | -                                      |
+| `sbom-path`       | Path to the SBOM file to submit              | Yes      | -       | Use a multiline value to submit multiple files |
 | `image`           | Container image name                         | No       | -       | **DEPRECATED** (accepted, but ignored) |
 | `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     | Accepted, but currently ignored        |
 | `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     | Accepted, but currently ignored        |
@@ -147,7 +163,7 @@ Never hardcode API tokens in your workflow files or commit them to your reposito
 
 **Error:** `Error: SBOM file not found at build/sbom.spdx`
 
-**Solution:** Ensure your SBOM generation step runs before this action and outputs to the correct path. Check that the path specified in `sbom-path` matches where your SBOM is generated.
+**Solution:** Ensure your SBOM generation step runs before this action and outputs to the correct path. Check that each path specified in `sbom-path` matches where your SBOMs are generated.
 
 ### Authentication failed (HTTP 401)
 
