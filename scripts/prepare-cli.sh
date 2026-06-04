@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Normalize the downloaded file path, verify it, and return the executable path.
-cli_path="${CLI_PATH}"
+cli_path="${CLI_DOWNLOAD_DIR}/${ASSET_NAME}"
 if [ "${RUNNER_OS}" = "Windows" ]; then
   mv "${cli_path}" "${cli_path}.exe"
   cli_path="${cli_path}.exe"

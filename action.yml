@@ -66,7 +66,7 @@ runs:
       id: prepare-cli
       shell: bash
       env:
-        CLI_PATH: ${{ fromJson(steps.download-cli.outputs.downloaded_files)[0] }}
+        CLI_DOWNLOAD_DIR: ${{ github.workspace }}/.bifrost-cli
         ASSET_NAME: ${{ steps.resolve-asset.outputs.asset_name }}
         EXPECTED_SHA: ${{ steps.resolve-asset.outputs.expected_sha }}
         RUNNER_OS: ${{ runner.os }}
