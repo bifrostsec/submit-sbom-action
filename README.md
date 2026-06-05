@@ -108,6 +108,33 @@ Provide `sbom-path` as a multiline value to upload multiple SBOM files in one ac
             build/frontend.cdx.json
 ```
 
+### GitHub Dependency Graph SBOM
+
+Use GitHub's dependency graph export as an additional SBOM source:
+
+```yaml
+      - name: Send SBOMs to bifrost
+        uses: bifrostsec/submit-sbom-action@v1
+        with:
+          api-token: ${{ secrets.BIFROST_API_TOKEN }}
+          service: 'my-service'
+          service-version: 'v1.0.0'
+          dependency-graph: 'true'
+```
+
+To export the dependency graph SBOM from a different repository, set `dependency-graph-repository`:
+
+```yaml
+      - name: Send SBOMs to bifrost
+        uses: bifrostsec/submit-sbom-action@v1
+        with:
+          api-token: ${{ secrets.BIFROST_API_TOKEN }}
+          service: 'my-service'
+          service-version: 'v1.0.0'
+          dependency-graph: 'true'
+          dependency-graph-repository: 'my-org/my-repo'
+```
+
 **Note:** If you want the workflow to continue even if this action fails, you can use GitHub's built-in `continue-on-error` setting. See the [GitHub Actions workflow syntax documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error) for more information.
 
 ## Inputs
@@ -117,7 +144,9 @@ Provide `sbom-path` as a multiline value to upload multiple SBOM files in one ac
 | `api-token`       | Bearer token for Bifrost API authentication  | Yes      | -       | -                                      |
 | `service`         | Your Service name                            | Yes      | -       | -                                      |
 | `service-version` | Your Service version                         | Yes      | -       | -                                      |
-| `sbom-path`       | Path to the SBOM file to submit              | Yes      | -       | Use a multiline value to submit multiple files |
+| `sbom-path`       | Path to the SBOM file to submit              | No       | `build/sbom.spdx` | Use a multiline value to submit multiple files |
+| `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false` | Uses the current repository by default |
+| `dependency-graph-repository` | Repository to export a dependency graph SBOM from | No | - | Format: `owner/repo`                   |
 | `image`           | Container image name                         | No       | -       | **DEPRECATED** (accepted, but ignored) |
 | `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     | Accepted, but currently ignored        |
 | `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     | Accepted, but currently ignored        |
@@ -143,6 +172,8 @@ The request includes:
 
 Read the [bifrost API documentation](https://docs.bifrostsec.com/api/v2/) for more details on authentication and request formats.
 
+When `dependency-graph: 'true'` is used, the action exports the repository SBOM from GitHub's dependency graph API and submits the resulting SPDX document alongside any local SBOM files. GitHub documents this endpoint here: [REST API endpoints for software bill of materials (SBOM)](https://docs.github.com/en/rest/dependency-graph/sboms).
+
 ## Security
 
 ### Storing API Tokens
@@ -156,6 +187,10 @@ Always store your bifrost API token as a GitHub Secret:
 5. Click "Add secret"
 
 Never hardcode API tokens in your workflow files or commit them to your repository.
+
+### GitHub Token Permissions
+
+When using `dependency-graph: 'true'`, the workflow token needs permission to read repository contents for the target repository. For the current repository, the default `${{ github.token }}` is used.
 
 ## Troubleshooting
 

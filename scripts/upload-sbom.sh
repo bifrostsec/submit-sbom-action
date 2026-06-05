@@ -5,6 +5,8 @@ set -euo pipefail
 source "$(dirname "$0")/sbom-paths.sh"
 
 load_sbom_paths
+append_dependency_graph_sbom_path
+ensure_sbom_sources
 
 echo "Submitting SBOM to Bifrost API..."
 echo "Service: ${ACTION_SERVICE}"

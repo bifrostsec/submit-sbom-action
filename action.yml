@@ -19,8 +19,15 @@ inputs:
     required: false
   sbom-path:
     description: Path to the SBOM file to submit, or a newline-separated list of paths
-    required: true
+    required: false
     default: build/sbom.spdx
+  dependency-graph:
+    description: Export and submit the GitHub dependency graph SBOM for a repository
+    required: false
+    default: 'false'
+  dependency-graph-repository:
+    description: Repository to export the dependency graph SBOM from (owner/repo). Defaults to the current repository
+    required: false
   retry-attempts:
     description: Number of retry attempts for failed requests
     required: false
@@ -40,10 +47,23 @@ runs:
       shell: bash
       env:
         ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
+        ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
         ACTION_IMAGE: ${{ inputs.image }}
         ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
         ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
       run: bash "$GITHUB_ACTION_PATH/scripts/validate-inputs.sh"
+
+    - name: Export Dependency Graph SBOM
+      id: dependency-graph-sbom
+      shell: bash
+      env:
+        ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
+        ACTION_DEPENDENCY_GRAPH_REPOSITORY: ${{ inputs.dependency-graph-repository }}
+        DEFAULT_GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_API_URL: ${{ github.api_url }}
+        GITHUB_TOKEN: ${{ github.token }}
+        RUNNER_TEMP: ${{ runner.temp }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/export-dependency-graph-sbom.sh"
 
     - name: Resolve CLI Asset Name
       id: resolve-asset
@@ -79,6 +99,8 @@ runs:
         ACTION_SERVICE: ${{ inputs.service }}
         ACTION_SERVICE_VERSION: ${{ inputs.service-version }}
         ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
+        ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
+        ACTION_DEPENDENCY_GRAPH_SBOM_PATH: ${{ steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path }}
         ACTION_API_HOST: ${{ inputs.api-host }}
         CLI_PATH: ${{ steps.prepare-cli.outputs.cli_path }}
       run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
