@@ -174,6 +174,8 @@ Read the [bifrost API documentation](https://docs.bifrostsec.com/api/v2/) for mo
 
 When `dependency-graph: 'true'` is used, the action exports the repository SBOM from GitHub's dependency graph API and submits the resulting SPDX document alongside any local SBOM files. GitHub documents this endpoint here: [REST API endpoints for software bill of materials (SBOM)](https://docs.github.com/en/rest/dependency-graph/sboms).
 
+The dependency graph export uses the GitHub CLI (`gh`) on the runner. GitHub-hosted runners include it by default. On self-hosted runners, ensure `gh` is installed and available on `PATH`.
+
 ## Security
 
 ### Storing API Tokens
