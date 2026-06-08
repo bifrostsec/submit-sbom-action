@@ -15,7 +15,7 @@ fi
 
 safe_repository="${repository//\//-}"
 sbom_path="${RUNNER_TEMP}/dependency-graph-${safe_repository}.spdx.json"
-github_host="${GITHUB_API_URL#https://}"
+github_host="${GITHUB_SERVER_URL#https://}"
 github_host="${github_host#http://}"
 github_host="${github_host%%/*}"
 

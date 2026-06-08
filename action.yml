@@ -60,7 +60,7 @@ runs:
         ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
         ACTION_DEPENDENCY_GRAPH_REPOSITORY: ${{ inputs.dependency-graph-repository }}
         DEFAULT_GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_API_URL: ${{ github.api_url }}
+        GITHUB_SERVER_URL: ${{ github.server_url }}
         GITHUB_TOKEN: ${{ github.token }}
         RUNNER_TEMP: ${{ runner.temp }}
       run: bash "$GITHUB_ACTION_PATH/scripts/export-dependency-graph-sbom.sh"
