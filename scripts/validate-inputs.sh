@@ -4,6 +4,16 @@ set -euo pipefail
 
 source "$(dirname "$0")/sbom-paths.sh"
 
+validate_non_negative_integer() {
+  local name="$1"
+  local value="$2"
+
+  if ! [[ "${value}" =~ ^[0-9]+$ ]]; then
+    echo "::error::Input \"${name}\" must be a non-negative integer"
+    exit 1
+  fi
+}
+
 # Keep the existing public inputs, but surface which ones are no-ops today.
 load_sbom_paths
 
@@ -18,10 +28,9 @@ for sbom_path in "${SBOM_PATHS[@]}"; do
   fi
 done
 
+validate_non_negative_integer "retry-attempts" "${ACTION_RETRY_ATTEMPTS}"
+validate_non_negative_integer "retry-delay" "${ACTION_RETRY_DELAY}"
+
 if [ -n "${ACTION_IMAGE}" ]; then
   echo "::warning::Input \"image\" is accepted, but ignored."
-fi
-
-if [ "${ACTION_RETRY_ATTEMPTS}" != "3" ] || [ "${ACTION_RETRY_DELAY}" != "5" ]; then
-  echo "::warning::Inputs \"retry-attempts\" and \"retry-delay\" are accepted, but currently ignored."
 fi

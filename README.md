@@ -77,8 +77,6 @@ jobs:
 
 ### Advanced Example with Custom Retry Configuration
 
-The action accepts retry-related inputs for compatibility with existing workflows:
-
 ```yaml
       - name: Send SBOM to bifrost
         uses: bifrostsec/submit-sbom-action@v1
@@ -148,8 +146,8 @@ To export the dependency graph SBOM from a different repository, set `dependency
 | `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false` | Uses the current repository by default |
 | `dependency-graph-repository` | Repository to export a dependency graph SBOM from | No | - | Format: `owner/repo`                   |
 | `image`           | Container image name                         | No       | -       | **DEPRECATED** (accepted, but ignored) |
-| `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     | Accepted, but currently ignored        |
-| `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     | Accepted, but currently ignored        |
+| `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     | -                                      |
+| `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     | -                                      |
 
 ## Outputs
 

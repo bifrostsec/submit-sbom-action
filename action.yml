@@ -78,7 +78,7 @@ runs:
       uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
       with:
         repository: bifrostsec/bifrost-cli
-        tag: v0.1.4
+        tag: v0.2.0
         fileName: ${{ steps.resolve-asset.outputs.asset_name }}
         out-file-path: .bifrost-cli
 
@@ -101,6 +101,8 @@ runs:
         ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
         ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
         ACTION_DEPENDENCY_GRAPH_SBOM_PATH: ${{ steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path }}
+        ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
+        ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
         ACTION_API_HOST: ${{ inputs.api-host }}
         CLI_PATH: ${{ steps.prepare-cli.outputs.cli_path }}
       run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
