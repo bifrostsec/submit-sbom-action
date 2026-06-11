@@ -160,7 +160,7 @@ When `dependency-graph: 'true'` is used, the action exports the repository SBOM 
 
 The dependency graph export uses the GitHub CLI (`gh`) on the runner. GitHub-hosted runners include it by default. On self-hosted runners, ensure `gh` is installed and available on `PATH`.
 
-Dependency graph export is only used for the current repository on its default branch. The action requests a generated dependency-graph SBOM report from GitHub and waits for that report while the default branch head remains at the expected workflow commit. If the branch moves first, dependency graph export is skipped.
+Dependency graph export is only used for the current repository on its default branch. If the default branch head no longer matches the workflow commit, dependency graph export is skipped.
 
 ## Security
 
