@@ -28,54 +28,49 @@ inputs:
   retry-attempts:
     description: Number of retry attempts for failed requests
     required: false
-    default: '3'
   retry-delay:
     description: Delay in seconds between retry attempts
     required: false
-    default: '5'
   api-host:
-    description: Custom API host URL
+    description: Custom API host URL (default https://portal.bifrostsec.com)
     required: false
-    default: https://portal.bifrostsec.com
 runs:
   using: composite
   steps:
-    - name: Validate Inputs
-      id: validate-inputs
+    - name: Warn About Deprecated Inputs
+      if: ${{ inputs.image != '' }}
       shell: bash
-      env:
-        ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
-        ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
-        ACTION_IMAGE: ${{ inputs.image }}
-        ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
-        ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
-      run: bash "$GITHUB_ACTION_PATH/scripts/validate-inputs.sh"
+      run: echo '::warning::Input "image" is accepted, but ignored.'
+
+    - name: Warn When No SBOM Source Is Configured
+      if: ${{ inputs.sbom-path == '' && inputs.dependency-graph != 'true' }}
+      shell: bash
+      run: echo '::warning::No SBOM source configured; no SBOM will be submitted.'
 
     - name: Export Dependency Graph SBOM
       id: dependency-graph-sbom
+      if: ${{ inputs.dependency-graph == 'true' }}
       shell: bash
       env:
-        ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
         GH_TOKEN: ${{ github.token }}
       run: bash "$GITHUB_ACTION_PATH/scripts/export-dependency-graph-sbom.sh"
 
     - name: Install CLI
       id: install-cli
-      if: ${{ steps.validate-inputs.outputs.upload_required == 'true' }}
+      if: ${{ inputs.sbom-path != '' || inputs.dependency-graph == 'true' }}
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: bash "$GITHUB_ACTION_PATH/scripts/install-cli.sh"
 
     - name: Upload SBOM
-      if: ${{ steps.validate-inputs.outputs.upload_required == 'true' }}
+      if: ${{ inputs.sbom-path != '' || inputs.dependency-graph == 'true' }}
       shell: bash
       env:
         ACTION_API_TOKEN: ${{ inputs.api-token }}
         ACTION_SERVICE: ${{ inputs.service }}
         ACTION_SERVICE_VERSION: ${{ inputs.service-version }}
         ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
-        ACTION_DEPENDENCY_GRAPH: ${{ inputs.dependency-graph }}
         ACTION_DEPENDENCY_GRAPH_SBOM_PATH: ${{ steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path }}
         ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
         ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}

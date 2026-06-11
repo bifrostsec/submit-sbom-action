@@ -3,17 +3,10 @@
 set -euo pipefail
 
 skip_dependency_graph() {
-  if [ -n "${1:-}" ]; then
-    echo "::warning::$1"
-  fi
-
+  echo "::warning::$1"
   echo "dependency_graph_sbom_path=" >> "${GITHUB_OUTPUT}"
   exit 0
 }
-
-if [ "${ACTION_DEPENDENCY_GRAPH}" != "true" ]; then
-  skip_dependency_graph
-fi
 
 if ! command -v gh >/dev/null 2>&1; then
   echo "::error::GitHub CLI (gh) is required to export dependency graph SBOMs"

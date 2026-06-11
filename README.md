@@ -129,7 +129,7 @@ Use GitHub's dependency graph export as an additional SBOM source:
 | `sbom-path`        | Path to the SBOM file to submit, or a multiline list of SBOM paths | No | - | When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
 | `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false`           | Uses the current repository default branch     |
 | `retry-attempts`   | Number of retry attempts for failed requests | No       | `3`               | -                                              |
-| `retry-delay`      | Delay in seconds between retry attempts      | No       | `5`               | -                                              |
+| `retry-delay`      | Delay in seconds between retry attempts      | No       | `2`               | -                                              |
 
 ## Outputs
 
@@ -181,7 +181,7 @@ When using `dependency-graph: 'true'`, the workflow token needs permission to re
 
 ### SBOM file not found
 
-**Error:** `Error: SBOM file not found at build/sbom.spdx`
+**Error:** `Error: SBOM file does not exist at path: build/sbom.spdx`
 
 **Solution:** Ensure your SBOM generation step runs before this action and outputs to the correct path. Check that each path specified in `sbom-path` matches where your SBOMs are generated.
 
