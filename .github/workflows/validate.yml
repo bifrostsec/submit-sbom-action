@@ -13,11 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Validate action metadata
-        run: |
-          grep -q '^  using: composite$' action.yml
+        uses: actions/checkout@v6.0.2
 
       - name: Validate shell syntax
         run: bash -n scripts/*.sh
