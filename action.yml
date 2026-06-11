@@ -20,7 +20,6 @@ inputs:
   sbom-path:
     description: >-
       Path to the SBOM file to submit, or a newline-separated list of paths.
-      Defaults to build/sbom.spdx unless dependency-graph is the only source.
     required: false
   dependency-graph:
     description: Export and submit the GitHub dependency graph SBOM for a repository
@@ -42,6 +41,7 @@ runs:
   using: composite
   steps:
     - name: Validate Inputs
+      id: validate-inputs
       shell: bash
       env:
         ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
@@ -61,12 +61,14 @@ runs:
 
     - name: Install CLI
       id: install-cli
+      if: ${{ steps.validate-inputs.outputs.upload_required == 'true' }}
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: bash "$GITHUB_ACTION_PATH/scripts/install-cli.sh"
 
     - name: Upload SBOM
+      if: ${{ steps.validate-inputs.outputs.upload_required == 'true' }}
       shell: bash
       env:
         ACTION_API_TOKEN: ${{ inputs.api-token }}
