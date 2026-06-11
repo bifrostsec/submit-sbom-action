@@ -35,7 +35,6 @@ jobs:
           api-token: ${{ secrets.BIFROST_API_TOKEN }}
           service: 'my-service'
           service-version: 'v1.0.0'
-          image: 'my-org/my-service:latest'
           sbom-path: 'build/sbom.spdx'
 ```
 
@@ -71,7 +70,6 @@ jobs:
           api-token: ${{ secrets.BIFROST_API_TOKEN }}
           service: 'my-service'
           service-version: 'v1.0.0'
-          image: 'my-org/my-service:latest'
           sbom-path: 'build/sbom.spdx'
 ```
 
@@ -84,7 +82,6 @@ jobs:
           api-token: ${{ secrets.BIFROST_API_TOKEN }}
           service: 'my-service'
           service-version: 'v1.0.0'
-          image: 'my-org/my-service:latest'
           sbom-path: 'build/sbom.spdx'
           retry-attempts: '5'
           retry-delay: '10'
@@ -129,9 +126,8 @@ Use GitHub's dependency graph export as an additional SBOM source:
 | `api-token`        | Bearer token for Bifrost API authentication  | Yes      | -                 | -                                              |
 | `service`          | Your Service name                            | Yes      | -                 | -                                              |
 | `service-version`  | Your Service version                         | Yes      | -                 | -                                              |
-| `sbom-path`        | Path to the SBOM file to submit              | No       | `build/sbom.spdx` | Use a multiline value to submit multiple files. When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
+| `sbom-path`        | Path to the SBOM file to submit, or a multiline list of SBOM paths | No | `build/sbom.spdx` | When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
 | `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false`           | Uses the current repository default branch     |
-| `image`            | Container image name                         | No       | -                 | **DEPRECATED** (accepted, but ignored)         |
 | `retry-attempts`   | Number of retry attempts for failed requests | No       | `3`               | -                                              |
 | `retry-delay`      | Delay in seconds between retry attempts      | No       | `5`               | -                                              |
 
