@@ -28,12 +28,15 @@ inputs:
   retry-attempts:
     description: Number of retry attempts for failed requests
     required: false
+    default: '3'
   retry-delay:
     description: Delay in seconds between retry attempts
     required: false
+    default: '2'
   api-host:
-    description: Custom API host URL (default https://portal.bifrostsec.com)
+    description: Custom API host URL
     required: false
+    default: https://portal.bifrostsec.com
 runs:
   using: composite
   steps:

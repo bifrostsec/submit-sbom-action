@@ -130,6 +130,7 @@ Use GitHub's dependency graph export as an additional SBOM source:
 | `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false`           | Uses the current repository default branch     |
 | `retry-attempts`   | Number of retry attempts for failed requests | No       | `3`               | -                                              |
 | `retry-delay`      | Delay in seconds between retry attempts      | No       | `2`               | -                                              |
+| `api-host`         | Custom API host URL                          | No       | `https://portal.bifrostsec.com` | -                                  |
 
 ## Outputs
 
