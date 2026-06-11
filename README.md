@@ -120,34 +120,20 @@ Use GitHub's dependency graph export as an additional SBOM source:
           dependency-graph: 'true'
 ```
 
-To export the dependency graph SBOM from a different repository, set `dependency-graph-repository`:
-
-```yaml
-      - name: Send SBOMs to bifrost
-        uses: bifrostsec/submit-sbom-action@v1
-        with:
-          api-token: ${{ secrets.BIFROST_API_TOKEN }}
-          service: 'my-service'
-          service-version: 'v1.0.0'
-          dependency-graph: 'true'
-          dependency-graph-repository: 'my-org/my-repo'
-```
-
 **Note:** If you want the workflow to continue even if this action fails, you can use GitHub's built-in `continue-on-error` setting. See the [GitHub Actions workflow syntax documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontinue-on-error) for more information.
 
 ## Inputs
 
-| Input             | Description                                  | Required | Default | Notes                                  |
-|-------------------|----------------------------------------------|----------|---------|----------------------------------------|
-| `api-token`       | Bearer token for Bifrost API authentication  | Yes      | -       | -                                      |
-| `service`         | Your Service name                            | Yes      | -       | -                                      |
-| `service-version` | Your Service version                         | Yes      | -       | -                                      |
-| `sbom-path`       | Path to the SBOM file to submit              | No       | `build/sbom.spdx` | Use a multiline value to submit multiple files |
-| `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false` | Uses the current repository by default |
-| `dependency-graph-repository` | Repository to export a dependency graph SBOM from | No | - | Format: `owner/repo`                   |
-| `image`           | Container image name                         | No       | -       | **DEPRECATED** (accepted, but ignored) |
-| `retry-attempts`  | Number of retry attempts for failed requests | No       | `3`     | -                                      |
-| `retry-delay`     | Delay in seconds between retry attempts      | No       | `5`     | -                                      |
+| Input              | Description                                  | Required | Default           | Notes                                          |
+|--------------------|----------------------------------------------|----------|-------------------|------------------------------------------------|
+| `api-token`        | Bearer token for Bifrost API authentication  | Yes      | -                 | -                                              |
+| `service`          | Your Service name                            | Yes      | -                 | -                                              |
+| `service-version`  | Your Service version                         | Yes      | -                 | -                                              |
+| `sbom-path`        | Path to the SBOM file to submit              | No       | `build/sbom.spdx` | Use a multiline value to submit multiple files. When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
+| `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false`           | Uses the current repository default branch     |
+| `image`            | Container image name                         | No       | -                 | **DEPRECATED** (accepted, but ignored)         |
+| `retry-attempts`   | Number of retry attempts for failed requests | No       | `3`               | -                                              |
+| `retry-delay`      | Delay in seconds between retry attempts      | No       | `5`               | -                                              |
 
 ## Outputs
 
@@ -174,6 +160,8 @@ When `dependency-graph: 'true'` is used, the action exports the repository SBOM 
 
 The dependency graph export uses the GitHub CLI (`gh`) on the runner. GitHub-hosted runners include it by default. On self-hosted runners, ensure `gh` is installed and available on `PATH`.
 
+Dependency graph export is only used for the current repository on its default branch. The action requests a generated dependency-graph SBOM report from GitHub and waits for that report while the default branch head remains at the expected workflow commit. If the branch moves first, dependency graph export is skipped.
+
 ## Security
 
 ### Storing API Tokens
@@ -190,7 +178,7 @@ Never hardcode API tokens in your workflow files or commit them to your reposito
 
 ### GitHub Token Permissions
 
-When using `dependency-graph: 'true'`, the workflow token needs permission to read repository contents for the target repository. For the current repository, the default `${{ github.token }}` is used.
+When using `dependency-graph: 'true'`, the workflow token needs permission to read repository contents for the current repository. The default `${{ github.token }}` is used.
 
 ## Troubleshooting
 

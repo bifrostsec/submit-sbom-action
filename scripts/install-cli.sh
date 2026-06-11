@@ -2,7 +2,9 @@
 
 set -euo pipefail
 
-# Resolve the release asset and pinned checksum from the GitHub runner platform.
+cli_version="v0.2.0"
+
+# Release asset and pinned checksum per runner platform; update together with cli_version.
 case "${RUNNER_OS}:${RUNNER_ARCH}" in
   Linux:X64)
     asset_name="bifrost-linux-amd64"
@@ -34,5 +36,35 @@ case "${RUNNER_OS}:${RUNNER_ARCH}" in
     ;;
 esac
 
-echo "asset_name=${asset_name}" >> "${GITHUB_OUTPUT}"
-echo "expected_sha=${expected_sha}" >> "${GITHUB_OUTPUT}"
+if ! command -v gh >/dev/null 2>&1; then
+  echo "::error::GitHub CLI (gh) is required to download the Bifrost CLI"
+  exit 1
+fi
+
+cli_dir="${RUNNER_TEMP}/bifrost-cli"
+mkdir -p "${cli_dir}"
+gh release download "${cli_version}" \
+  --repo bifrostsec/bifrost-cli \
+  --pattern "${asset_name}" \
+  --dir "${cli_dir}" \
+  --clobber
+
+cli_path="${cli_dir}/${asset_name}"
+if [ "${RUNNER_OS}" = "Windows" ]; then
+  mv "${cli_path}" "${cli_path}.exe"
+  cli_path="${cli_path}.exe"
+fi
+
+if command -v sha256sum >/dev/null 2>&1; then
+  actual_sha="$(sha256sum "${cli_path}" | awk '{print $1}')"
+else
+  actual_sha="$(shasum -a 256 "${cli_path}" | awk '{print $1}')"
+fi
+
+if [ "${actual_sha}" != "${expected_sha}" ]; then
+  echo "::error::Checksum mismatch for ${asset_name}"
+  exit 1
+fi
+
+chmod +x "${cli_path}"
+echo "cli_path=${cli_path}" >> "${GITHUB_OUTPUT}"

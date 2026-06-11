@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-source "$(dirname "$0")/sbom-paths.sh"
-
 validate_non_negative_integer() {
   local name="$1"
   local value="$2"
@@ -14,19 +12,28 @@ validate_non_negative_integer() {
   fi
 }
 
-# Keep the existing public inputs, but surface which ones are no-ops today.
-load_sbom_paths
+sbom_paths=()
+while IFS= read -r line; do
+  line="${line%$'\r'}"
+  if [ -n "${line}" ]; then
+    sbom_paths+=("${line}")
+  fi
+done <<< "${ACTION_SBOM_PATH}"
 
-if [ "${#SBOM_PATHS[@]}" -eq 0 ] && [ "${ACTION_DEPENDENCY_GRAPH}" != "true" ]; then
-  ensure_sbom_sources
+# Default to build/sbom.spdx unless dependency-graph export is the only SBOM source.
+if [ "${#sbom_paths[@]}" -eq 0 ] && [ "${ACTION_DEPENDENCY_GRAPH}" != "true" ]; then
+  sbom_paths=("build/sbom.spdx")
 fi
 
-for sbom_path in "${SBOM_PATHS[@]}"; do
-  if [ ! -f "${sbom_path}" ]; then
-    echo "::error::SBOM file not found at ${sbom_path}"
-    exit 1
-  fi
-done
+# The guard keeps the empty-array expansion safe under set -u on bash < 4.4.
+if [ "${#sbom_paths[@]}" -gt 0 ]; then
+  for sbom_path in "${sbom_paths[@]}"; do
+    if [ ! -f "${sbom_path}" ]; then
+      echo "::error::SBOM file not found at ${sbom_path}"
+      exit 1
+    fi
+  done
+fi
 
 validate_non_negative_integer "retry-attempts" "${ACTION_RETRY_ATTEMPTS}"
 validate_non_negative_integer "retry-delay" "${ACTION_RETRY_DELAY}"
