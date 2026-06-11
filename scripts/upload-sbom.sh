@@ -20,6 +20,11 @@ if [ -n "${ACTION_DEPENDENCY_GRAPH_SBOM_PATH}" ]; then
 fi
 
 if [ "${#sbom_paths[@]}" -eq 0 ]; then
+  if [ "${ACTION_DEPENDENCY_GRAPH}" = "true" ]; then
+    echo "::error::No SBOMs were available to upload. The dependency graph export did not produce an SBOM for this workflow run, and no local sbom-path values were provided. Provide at least one SBOM path or run on the repository default branch at the expected commit."
+    exit 1
+  fi
+
   echo "::error::At least one SBOM file path is required"
   exit 1
 fi
