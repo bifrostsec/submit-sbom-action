@@ -10,11 +10,6 @@ while IFS= read -r line; do
   fi
 done <<< "${ACTION_SBOM_PATH}"
 
-# Default to build/sbom.spdx unless dependency-graph export is the only SBOM source.
-if [ "${#sbom_paths[@]}" -eq 0 ] && [ "${ACTION_DEPENDENCY_GRAPH}" != "true" ]; then
-  sbom_paths=("build/sbom.spdx")
-fi
-
 if [ -n "${ACTION_DEPENDENCY_GRAPH_SBOM_PATH}" ]; then
   sbom_paths+=("${ACTION_DEPENDENCY_GRAPH_SBOM_PATH}")
 fi
@@ -25,8 +20,8 @@ if [ "${#sbom_paths[@]}" -eq 0 ]; then
     exit 1
   fi
 
-  echo "::error::At least one SBOM file path is required"
-  exit 1
+  echo "::warning::No SBOM source configured; no SBOM will be submitted."
+  exit 0
 fi
 
 echo "Submitting SBOM to Bifrost API..."
