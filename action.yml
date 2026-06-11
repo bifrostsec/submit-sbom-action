@@ -15,7 +15,7 @@ inputs:
     description: Service version
     required: true
   image:
-    description: Container image name
+    description: 'DEPRECATED: Container image name (accepted, but ignored)'
     required: false
   sbom-path:
     description: >-
