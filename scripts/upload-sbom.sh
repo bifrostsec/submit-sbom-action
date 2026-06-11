@@ -29,6 +29,12 @@ fi
 if [ -n "${ACTION_RETRY_DELAY}" ]; then
   args+=("--retry-delay=${ACTION_RETRY_DELAY}s")
 fi
+if [ -n "${ACTION_GIT_BRANCH:-}" ]; then
+  args+=("--git-branch=${ACTION_GIT_BRANCH}")
+fi
+if [ -n "${ACTION_GIT_COMMIT_SHA:-}" ]; then
+  args+=("--git-commit-sha=${ACTION_GIT_COMMIT_SHA}")
+fi
 
 BIFROST_API_KEY="${ACTION_API_TOKEN}" \
 BIFROST_SERVER_URL="${ACTION_API_HOST}" \

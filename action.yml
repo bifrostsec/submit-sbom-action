@@ -75,5 +75,7 @@ runs:
         ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
         ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
         ACTION_API_HOST: ${{ inputs.api-host }}
+        ACTION_GIT_BRANCH: ${{ github.ref_name }}
+        ACTION_GIT_COMMIT_SHA: ${{ github.sha }}
         CLI_PATH: ${{ steps.install-cli.outputs.cli_path }}
       run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
