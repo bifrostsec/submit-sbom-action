@@ -151,7 +151,7 @@ The request includes:
 - `Authorization: Bearer {api-token}` header
 - `Content-Type: application/json` header
 - SBOM file contents as the request body
-- Git metadata query parameters: `git_branch` and `git_commit_sha`
+- Git metadata query parameters: `git_branch`, `git_commit_sha`, and `git_origin`
 
 Read the [bifrost API documentation](https://docs.bifrostsec.com/api/v2/) for more details on authentication and request formats.
 

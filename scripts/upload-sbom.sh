@@ -37,6 +37,9 @@ fi
 if [ -n "${ACTION_GIT_COMMIT_SHA:-}" ]; then
   args+=("--git-commit-sha=${ACTION_GIT_COMMIT_SHA}")
 fi
+if [ -n "${ACTION_GIT_ORIGIN:-}" ]; then
+  args+=("--git-origin=${ACTION_GIT_ORIGIN}")
+fi
 
 BIFROST_API_KEY="${ACTION_API_TOKEN}" \
 BIFROST_SERVER_URL="${ACTION_API_HOST}" \

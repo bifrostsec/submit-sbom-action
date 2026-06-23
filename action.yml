@@ -80,5 +80,6 @@ runs:
         ACTION_API_HOST: ${{ inputs.api-host }}
         ACTION_GIT_BRANCH: ${{ github.ref_name }}
         ACTION_GIT_COMMIT_SHA: ${{ github.sha }}
+        ACTION_GIT_ORIGIN: ${{ github.server_url }}/${{ github.repository }}
         CLI_PATH: ${{ steps.install-cli.outputs.cli_path }}
       run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
