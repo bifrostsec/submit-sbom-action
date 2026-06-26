@@ -11,8 +11,13 @@ on:
 run-name: Release v${{ inputs.version }}
 
 jobs:
+  validate:
+    name: Validate action
+    uses: ./.github/workflows/validate.yaml
+
   release:
     name: Generate release v${{ inputs.version }}
+    needs: validate
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,16 +39,6 @@ jobs:
 
           echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
           echo "major_tag=v${VERSION%%.*}" >> "$GITHUB_OUTPUT"
-
-      - name: Validate action metadata
-        run: |
-          grep -q '^  using: composite$' action.yml
-
-      - name: Validate shell syntax
-        run: bash -n scripts/*.sh
-
-      - name: Run ShellCheck
-        run: shellcheck --severity=warning scripts/*.sh
 
       - name: Set up Git user
         uses: fregante/setup-git-user@v2.0.2
