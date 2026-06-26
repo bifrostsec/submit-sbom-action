@@ -83,12 +83,25 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
 
-      - name: Update major version tag
+      - name: Update moving major version tag
         env:
           MAJOR_TAG: ${{ steps.version.outputs.major_tag }}
         run: |
+          # Exact release tags like v1.2.3 are immutable, but the major tag
+          # like v1 is a moving alias for the latest v1 release.
+          existing_major_ref=""
+          if git rev-parse -q --verify "refs/tags/${MAJOR_TAG}" >/dev/null; then
+            existing_major_ref="$(git rev-parse "refs/tags/${MAJOR_TAG}")"
+          fi
+
           git tag -fa "${MAJOR_TAG}" "${GITHUB_SHA}" -m "${MAJOR_TAG}"
-          git push --force origin "refs/tags/${MAJOR_TAG}"
+
+          if [[ -n "${existing_major_ref}" ]]; then
+            # Only move the remote tag if it still points to the value we fetched.
+            git push --force-with-lease="refs/tags/${MAJOR_TAG}:${existing_major_ref}" origin "refs/tags/${MAJOR_TAG}"
+          else
+            git push origin "refs/tags/${MAJOR_TAG}"
+          fi
 
       - name: Slackify changelog
         id: slackify
@@ -105,15 +118,3 @@ jobs:
           footer: "Linked Repo <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Marketplace note
-        env:
-          RELEASE_URL: ${{ steps.github-release.outputs.html_url }}
-        run: |
-          {
-            echo "## Marketplace"
-            echo
-            echo "Created or updated release: ${RELEASE_URL}"
-            echo
-            echo "The action is usable from this tag immediately. GitHub Marketplace publishing is controlled by the release's Marketplace setting in GitHub, not by a workflow upload step."
-          } >> "$GITHUB_STEP_SUMMARY"
