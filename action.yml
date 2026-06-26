@@ -15,12 +15,16 @@ inputs:
     description: Service version
     required: true
   image:
-    description: Container image name
+    description: 'DEPRECATED: Container image name (accepted, but ignored)'
     required: false
   sbom-path:
-    description: Path to the SBOM file to submit
-    required: true
-    default: build/sbom.spdx
+    description: >-
+      Path to the SBOM file to submit, or a newline-separated list of paths.
+    required: false
+  dependency-graph:
+    description: Export and submit the GitHub dependency graph SBOM for a repository
+    required: false
+    default: 'false'
   retry-attempts:
     description: Number of retry attempts for failed requests
     required: false
@@ -28,11 +32,54 @@ inputs:
   retry-delay:
     description: Delay in seconds between retry attempts
     required: false
-    default: '5'
+    default: '2'
   api-host:
     description: Custom API host URL
     required: false
     default: https://portal.bifrostsec.com
 runs:
-  using: node20
-  main: dist/index.js
+  using: composite
+  steps:
+    - name: Warn About Deprecated Inputs
+      if: ${{ inputs.image != '' }}
+      shell: bash
+      run: echo '::warning::Input "image" is accepted, but ignored.'
+
+    - name: Warn When No SBOM Source Is Configured
+      if: ${{ inputs.sbom-path == '' && inputs.dependency-graph != 'true' }}
+      shell: bash
+      run: echo '::warning::No SBOM source configured; no SBOM will be submitted.'
+
+    - name: Export Dependency Graph SBOM
+      id: dependency-graph-sbom
+      if: ${{ inputs.dependency-graph == 'true' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/export-dependency-graph-sbom.sh"
+
+    - name: Install CLI
+      id: install-cli
+      if: ${{ inputs.sbom-path != '' || steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path != '' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/install-cli.sh"
+
+    - name: Upload SBOM
+      if: ${{ inputs.sbom-path != '' || steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path != '' }}
+      shell: bash
+      env:
+        ACTION_API_TOKEN: ${{ inputs.api-token }}
+        ACTION_SERVICE: ${{ inputs.service }}
+        ACTION_SERVICE_VERSION: ${{ inputs.service-version }}
+        ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
+        ACTION_DEPENDENCY_GRAPH_SBOM_PATH: ${{ steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path }}
+        ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
+        ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
+        ACTION_API_HOST: ${{ inputs.api-host }}
+        ACTION_GIT_BRANCH: ${{ github.ref_name }}
+        ACTION_GIT_COMMIT_SHA: ${{ github.sha }}
+        ACTION_GIT_ORIGIN: ${{ github.server_url }}/${{ github.repository }}
+        CLI_PATH: ${{ steps.install-cli.outputs.cli_path }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"

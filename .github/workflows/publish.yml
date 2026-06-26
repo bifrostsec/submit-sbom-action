@@ -5,22 +5,16 @@ on:
     types: [published, edited]
 
 jobs:
-  build:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: '.node-version'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Commit built dist
-        uses: JasonEtco/build-and-tag-action@v2
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Validate action metadata
+        run: |
+          grep -q '^  using: composite$' action.yml
+      - name: Validate action scripts
+        run: |
+          bash -n scripts/*.sh
