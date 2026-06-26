@@ -13,6 +13,8 @@ run-name: Release v${{ inputs.version }}
 jobs:
   validate:
     name: Validate action
+    permissions:
+      contents: read
     uses: ./.github/workflows/validate.yaml
 
   release:
@@ -53,7 +55,7 @@ jobs:
           if git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" >/dev/null; then
             existing_sha="$(git rev-list -n 1 "${RELEASE_TAG}")"
             if [[ "${existing_sha}" != "${GITHUB_SHA}" ]]; then
-              echo "::error::Release tag ${RELEASE_TAG} already points to ${existing_sha}; refusing to move ${MAJOR_TAG} to ${GITHUB_SHA}."
+              echo "::error::Release tag ${RELEASE_TAG} already points to ${existing_sha}; refusing to reuse it for ${GITHUB_SHA}."
               exit 1
             fi
 
