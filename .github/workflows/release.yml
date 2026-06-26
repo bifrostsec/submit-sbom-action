@@ -1,0 +1,108 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of new release (ex. 1.2.3)'
+        required: true
+        type: string
+
+run-name: Release v${{ inputs.version }}
+
+jobs:
+  release:
+    name: Generate release v${{ inputs.version }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Validate version
+        id: version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version must be a semantic version without a leading v, for example 1.2.3"
+            exit 1
+          fi
+
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "major_tag=v${VERSION%%.*}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate action metadata
+        run: |
+          grep -q '^  using: composite$' action.yml
+
+      - name: Validate shell syntax
+        run: bash -n scripts/*.sh
+
+      - name: Run ShellCheck
+        run: shellcheck --severity=warning scripts/*.sh
+
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v2.0.2
+
+      - name: Create release tag
+        env:
+          MAJOR_TAG: ${{ steps.version.outputs.major_tag }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git fetch --tags --force origin
+
+          if git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" >/dev/null; then
+            existing_sha="$(git rev-list -n 1 "${RELEASE_TAG}")"
+            if [[ "${existing_sha}" != "${GITHUB_SHA}" ]]; then
+              echo "::error::Release tag ${RELEASE_TAG} already points to ${existing_sha}; refusing to move ${MAJOR_TAG} to ${GITHUB_SHA}."
+              exit 1
+            fi
+
+            echo "::notice::Release tag ${RELEASE_TAG} already points to ${GITHUB_SHA}; reusing it."
+          else
+            git tag -a "${RELEASE_TAG}" "${GITHUB_SHA}" -m "${RELEASE_TAG}"
+            git push origin "refs/tags/${RELEASE_TAG}"
+          fi
+
+      - name: Generate changelog
+        id: changelog
+        uses: requarks/changelog-action@v1.10.3
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.version.outputs.tag }}
+          includeInvalidCommits: true
+
+      - name: Create GitHub release
+        id: github-release
+        uses: ncipollo/release-action@v1.21.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          name: ${{ steps.version.outputs.tag }}
+          tag: ${{ steps.version.outputs.tag }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
+
+      - name: Update major version tag
+        env:
+          MAJOR_TAG: ${{ steps.version.outputs.major_tag }}
+        run: |
+          git tag -fa "${MAJOR_TAG}" "${GITHUB_SHA}" -m "${MAJOR_TAG}"
+          git push --force origin "refs/tags/${MAJOR_TAG}"
+
+      - name: Marketplace note
+        env:
+          RELEASE_URL: ${{ steps.github-release.outputs.html_url }}
+        run: |
+          {
+            echo "## Marketplace"
+            echo
+            echo "Created or updated release: ${RELEASE_URL}"
+            echo
+            echo "The action is usable from this tag immediately. GitHub Marketplace publishing is controlled by the release's Marketplace setting in GitHub, not by a workflow upload step."
+          } >> "$GITHUB_STEP_SUMMARY"
