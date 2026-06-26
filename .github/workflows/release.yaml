@@ -90,6 +90,22 @@ jobs:
           git tag -fa "${MAJOR_TAG}" "${GITHUB_SHA}" -m "${MAJOR_TAG}"
           git push --force origin "refs/tags/${MAJOR_TAG}"
 
+      - name: Slackify changelog
+        id: slackify
+        uses: LoveToKnow/slackify-markdown-action@v1.1.1
+        with:
+          text: ${{ steps.changelog.outputs.changes }}
+
+      - name: Slack notification
+        uses: ravsamhq/notify-slack-action@2.5.0
+        with:
+          status: "success"
+          notification_title: ":rocket: Release of *${{ github.repository }}* <${{ steps.github-release.outputs.html_url }}|${{ steps.version.outputs.tag }}>"
+          message_format: ${{ steps.slackify.outputs.text }}
+          footer: "Linked Repo <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - name: Marketplace note
         env:
           RELEASE_URL: ${{ steps.github-release.outputs.html_url }}
