@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of new release (ex. 1.2.3)'
+        required: true
+        type: string
+
+run-name: Release v${{ inputs.version }}
+
+jobs:
+  validate:
+    name: Validate action
+    permissions:
+      contents: read
+    uses: ./.github/workflows/validate.yaml
+
+  release:
+    name: Generate release v${{ inputs.version }}
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Validate version
+        id: version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version must be a semantic version without a leading v, for example 1.2.3"
+            exit 1
+          fi
+
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "major_tag=v${VERSION%%.*}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Git user
+        uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
+
+      - name: Create release tag
+        env:
+          MAJOR_TAG: ${{ steps.version.outputs.major_tag }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git fetch --tags origin
+
+          if git rev-parse -q --verify "refs/tags/${RELEASE_TAG}" >/dev/null; then
+            existing_sha="$(git rev-list -n 1 "${RELEASE_TAG}")"
+            if [[ "${existing_sha}" != "${GITHUB_SHA}" ]]; then
+              echo "::error::Release tag ${RELEASE_TAG} already points to ${existing_sha}; refusing to reuse it for ${GITHUB_SHA}."
+              exit 1
+            fi
+
+            echo "::notice::Release tag ${RELEASE_TAG} already points to ${GITHUB_SHA}; reusing it."
+          else
+            git tag -a "${RELEASE_TAG}" "${GITHUB_SHA}" -m "${RELEASE_TAG}"
+            git push origin "refs/tags/${RELEASE_TAG}"
+          fi
+
+      - name: Generate changelog
+        id: changelog
+        uses: requarks/changelog-action@b78a3354a01f4a1affb484b9264b506a815c46b1 # v1.10.3
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.version.outputs.tag }}
+          includeInvalidCommits: true
+
+      - name: Create GitHub release
+        id: github-release
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          name: ${{ steps.version.outputs.tag }}
+          tag: ${{ steps.version.outputs.tag }}
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
+
+      - name: Update moving major version tag
+        env:
+          MAJOR_TAG: ${{ steps.version.outputs.major_tag }}
+        run: |
+          # Exact release tags like v1.2.3 are immutable, but the major tag
+          # like v1 is a moving alias for the latest v1 release.
+          existing_major_ref=""
+          if git rev-parse -q --verify "refs/tags/${MAJOR_TAG}" >/dev/null; then
+            existing_major_ref="$(git rev-parse "refs/tags/${MAJOR_TAG}")"
+          fi
+
+          git tag -fa "${MAJOR_TAG}" "${GITHUB_SHA}" -m "${MAJOR_TAG}"
+
+          if [[ -n "${existing_major_ref}" ]]; then
+            # Only move the remote tag if it still points to the value we fetched.
+            git push --force-with-lease="refs/tags/${MAJOR_TAG}:${existing_major_ref}" origin "refs/tags/${MAJOR_TAG}"
+          else
+            git push origin "refs/tags/${MAJOR_TAG}"
+          fi
+
+      - name: Slackify changelog
+        id: slackify
+        uses: LoveToKnow/slackify-markdown-action@698a1d4d0ff1794152a93c03ee8ca5e03a310d4e # v1.1.1
+        with:
+          text: ${{ steps.changelog.outputs.changes }}
+
+      - name: Slack notification
+        uses: ravsamhq/notify-slack-action@be814b201e233b2dc673608aa46e5447c8ab13f2 # 2.5.0
+        with:
+          status: "success"
+          notification_title: ":rocket: Release of *${{ github.repository }}* <${{ steps.github-release.outputs.html_url }}|${{ steps.version.outputs.tag }}>"
+          message_format: ${{ steps.slackify.outputs.text }}
+          footer: "Linked Repo <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}>"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
