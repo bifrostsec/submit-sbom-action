@@ -21,6 +21,11 @@ if [ "${#sbom_paths[@]}" -eq 0 ]; then
   exit 1
 fi
 
+if [ -z "${ACTION_SERVICE_VERSION:-}" ] && [ -z "${ACTION_IMAGE:-}" ]; then
+  echo "::error::Either service-version or image must be provided."
+  exit 1
+fi
+
 args=(
   "--service=${ACTION_SERVICE}"
 )
@@ -30,10 +35,10 @@ fi
 if [ -n "${ACTION_IMAGE:-}" ]; then
   args+=("--image=${ACTION_IMAGE}")
 fi
-if [ -n "${ACTION_RETRY_ATTEMPTS}" ]; then
+if [ -n "${ACTION_RETRY_ATTEMPTS:-}" ]; then
   args+=("--retry-attempts=${ACTION_RETRY_ATTEMPTS}")
 fi
-if [ -n "${ACTION_RETRY_DELAY}" ]; then
+if [ -n "${ACTION_RETRY_DELAY:-}" ]; then
   args+=("--retry-delay=${ACTION_RETRY_DELAY}s")
 fi
 if [ -n "${ACTION_GIT_REPO_PATH:-}" ]; then
