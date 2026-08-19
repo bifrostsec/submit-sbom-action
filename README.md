@@ -87,6 +87,20 @@ jobs:
           retry-delay: '10'
 ```
 
+### Container Image Version Inference
+
+Provide `image` when the SBOM belongs to a container image. `service-version` is optional when `image` is provided.
+
+```yaml
+      - name: Send image SBOM to bifrost
+        uses: bifrostsec/submit-sbom-action@v1
+        with:
+          api-token: ${{ secrets.BIFROST_API_TOKEN }}
+          service: 'my-service'
+          image: 'ghcr.io/example/my-service:v1.0.0'
+          sbom-path: 'build/image.cdx.json'
+```
+
 ### Multiple SBOM Files
 
 Provide `sbom-path` as a multiline value to upload multiple SBOM files in one action invocation:
@@ -125,7 +139,8 @@ Use GitHub's dependency graph export as an additional SBOM source:
 |--------------------|----------------------------------------------|----------|-------------------|------------------------------------------------|
 | `api-token`        | Bearer token for Bifrost API authentication  | Yes      | -                 | -                                              |
 | `service`          | Your Service name                            | Yes      | -                 | -                                              |
-| `service-version`  | Your Service version                         | Yes      | -                 | -                                              |
+| `service-version`  | Your Service version                         | Conditional | -              | Required unless `image` is provided            |
+| `image`            | Container image reference                    | Conditional | -              | Required unless `service-version` is provided  |
 | `sbom-path`        | Path to the SBOM file to submit, or a multiline list of SBOM paths | No | - | When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
 | `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false`           | Uses the current repository default branch     |
 | `retry-attempts`   | Number of retry attempts for failed requests | No       | `3`               | -                                              |
@@ -144,14 +159,15 @@ This action does not provide explicit output values. Instead, it uses GitHub Act
 This action submits SBOMs to the Bifrost API using `bifrost-cli`, which calls the following endpoint:
 
 ``` 
-POST https://portal.bifrostsec.com/api/v2/service/{service}/version/{version}/sbom
+POST https://portal.bifrostsec.com/api/v2/service/{service}/version/sbom
 ```
 
 The request includes:
 - `Authorization: Bearer {api-token}` header
 - `Content-Type: application/json` header
 - SBOM file contents as the request body
-- Git metadata query parameters: `git_branch`, `git_commit_sha`, and `git_origin`
+- `version` and/or `image` query parameters
+- Git metadata query parameters detected by `bifrost-cli` from the GitHub workspace when a checkout is available: `git_branch`, `git_commit_sha`, and `git_origin`
 
 Read the [bifrost API documentation](https://docs.bifrostsec.com/api/v2/) for more details on authentication and request formats.
 

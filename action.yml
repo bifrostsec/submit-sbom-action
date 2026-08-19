@@ -12,10 +12,10 @@ inputs:
     description: Service name
     required: true
   service-version:
-    description: Service version
-    required: true
+    description: Service version. Required unless image is provided.
+    required: false
   image:
-    description: 'DEPRECATED: Container image name (accepted, but ignored)'
+    description: Container image reference. Required unless service-version is provided.
     required: false
   sbom-path:
     description: >-
@@ -40,11 +40,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Warn About Deprecated Inputs
-      if: ${{ inputs.image != '' }}
-      shell: bash
-      run: echo '::warning::Input "image" is accepted, but ignored.'
-
     - name: Warn When No SBOM Source Is Configured
       if: ${{ inputs.sbom-path == '' && inputs.dependency-graph != 'true' }}
       shell: bash
@@ -73,13 +68,12 @@ runs:
         ACTION_API_TOKEN: ${{ inputs.api-token }}
         ACTION_SERVICE: ${{ inputs.service }}
         ACTION_SERVICE_VERSION: ${{ inputs.service-version }}
+        ACTION_IMAGE: ${{ inputs.image }}
         ACTION_SBOM_PATH: ${{ inputs.sbom-path }}
         ACTION_DEPENDENCY_GRAPH_SBOM_PATH: ${{ steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path }}
         ACTION_RETRY_ATTEMPTS: ${{ inputs.retry-attempts }}
         ACTION_RETRY_DELAY: ${{ inputs.retry-delay }}
         ACTION_API_HOST: ${{ inputs.api-host }}
-        ACTION_GIT_BRANCH: ${{ github.ref_name }}
-        ACTION_GIT_COMMIT_SHA: ${{ github.sha }}
-        ACTION_GIT_ORIGIN: ${{ github.server_url }}/${{ github.repository }}
+        ACTION_GIT_REPO_PATH: ${{ github.workspace }}
         CLI_PATH: ${{ steps.install-cli.outputs.cli_path }}
       run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
