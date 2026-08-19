@@ -89,7 +89,7 @@ jobs:
 
 ### Container Image Version Inference
 
-Provide `image` when the SBOM belongs to a container image. `service-version` is optional when `image` is provided.
+Provide `image` when the SBOM belongs to a container image. `service-version` is optional when `image` is provided, the version name will then be derived from the image tag (both can be provided).
 
 ```yaml
       - name: Send image SBOM to bifrost
