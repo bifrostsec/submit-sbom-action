@@ -21,24 +21,28 @@ if [ "${#sbom_paths[@]}" -eq 0 ]; then
   exit 1
 fi
 
+if [ -z "${ACTION_SERVICE_VERSION:-}" ] && [ -z "${ACTION_IMAGE:-}" ]; then
+  echo "::error::Either service-version or image must be provided."
+  exit 1
+fi
+
 args=(
   "--service=${ACTION_SERVICE}"
-  "--service-version=${ACTION_SERVICE_VERSION}"
 )
-if [ -n "${ACTION_RETRY_ATTEMPTS}" ]; then
+if [ -n "${ACTION_SERVICE_VERSION:-}" ]; then
+  args+=("--service-version=${ACTION_SERVICE_VERSION}")
+fi
+if [ -n "${ACTION_IMAGE:-}" ]; then
+  args+=("--image=${ACTION_IMAGE}")
+fi
+if [ -n "${ACTION_RETRY_ATTEMPTS:-}" ]; then
   args+=("--retry-attempts=${ACTION_RETRY_ATTEMPTS}")
 fi
-if [ -n "${ACTION_RETRY_DELAY}" ]; then
+if [ -n "${ACTION_RETRY_DELAY:-}" ]; then
   args+=("--retry-delay=${ACTION_RETRY_DELAY}s")
 fi
-if [ -n "${ACTION_GIT_BRANCH:-}" ]; then
-  args+=("--git-branch=${ACTION_GIT_BRANCH}")
-fi
-if [ -n "${ACTION_GIT_COMMIT_SHA:-}" ]; then
-  args+=("--git-commit-sha=${ACTION_GIT_COMMIT_SHA}")
-fi
-if [ -n "${ACTION_GIT_ORIGIN:-}" ]; then
-  args+=("--git-origin=${ACTION_GIT_ORIGIN}")
+if [ -n "${ACTION_GIT_REPO_PATH:-}" ]; then
+  args+=("--git-repo-path=${ACTION_GIT_REPO_PATH}")
 fi
 
 BIFROST_API_KEY="${ACTION_API_TOKEN}" \

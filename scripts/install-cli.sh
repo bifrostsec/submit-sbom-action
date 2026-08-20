@@ -2,33 +2,33 @@
 
 set -euo pipefail
 
-cli_version="v0.2.2"
+cli_version="v0.3.1"
 
 # Release asset and pinned checksum per runner platform; update together with cli_version.
 case "${RUNNER_OS}:${RUNNER_ARCH}" in
   Linux:X64)
     asset_name="bifrost-linux-amd64"
-    expected_sha="516eaf892818d6a5f406dd10ce44ccd5b68546399b705d9dc0d5b711d2f4b9d1"
+    expected_sha="174d394a04eee09588127c871f84c608c14b7d3a1a70611b8b327cb017f27445"
     ;;
   Linux:ARM64)
     asset_name="bifrost-linux-arm64"
-    expected_sha="73aa3e3e20d1aa5bcd09740074503fd32b49bb05c8d935dbf099b602475628c1"
+    expected_sha="0b7f4c61ee4ed810511479a93c9325c3f84dc99340b6375be97dc09603a440e5"
     ;;
   macOS:X64)
     asset_name="bifrost-darwin-amd64"
-    expected_sha="7c494b2bc4036d1fe90a7f75a7d2b6377bd7185ed8c80f9095bae405438901f6"
+    expected_sha="3a4adb907487b56fb88c51b8546bf39031efd6d1cac0bef499db75eb1fe44f5d"
     ;;
   macOS:ARM64)
     asset_name="bifrost-darwin-arm64"
-    expected_sha="ca57a447c399340349ef9530ee5874350178d834671b5207d1bd918861c6e5bb"
+    expected_sha="89638d6465ca8af0846cded855e48b2d242d51f0e4c7522a69c660c63d3fd1dc"
     ;;
   Windows:X64)
     asset_name="bifrost-windows-amd64"
-    expected_sha="7b1c340b963bd37353849041ea0ab4e7a65a1fa00c3a8bb92327ab2ca4b1abaa"
+    expected_sha="7c7473ab0e209ea7a93e7f152d38e915a464eb317675788d931aefbf3f64df20"
     ;;
   Windows:X86)
     asset_name="bifrost-windows-386"
-    expected_sha="b109c58a683061b55fc8dc7e04e1bc5691e0f15f256f204ce87136168eb41c83"
+    expected_sha="6fafec53b0f796977eaabe3e2fea1d1d744fc39d18f8012cbe9734dfdab9a37c"
     ;;
   *)
     echo "::error::Unsupported runner platform: ${RUNNER_OS}/${RUNNER_ARCH}"
