@@ -44,6 +44,9 @@ fi
 if [ -n "${ACTION_GIT_REPO_PATH:-}" ]; then
   args+=("--git-repo-path=${ACTION_GIT_REPO_PATH}")
 fi
+if [ -n "${ACTION_GIT_BRANCH:-}" ]; then
+  args+=("--git-branch=${ACTION_GIT_BRANCH}")
+fi
 
 BIFROST_API_KEY="${ACTION_API_TOKEN}" \
 BIFROST_SERVER_URL="${ACTION_API_HOST}" \
