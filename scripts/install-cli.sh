@@ -36,20 +36,21 @@ case "${RUNNER_OS}:${RUNNER_ARCH}" in
     ;;
 esac
 
-if ! command -v gh >/dev/null 2>&1; then
-  echo "::error::GitHub CLI (gh) is required to download the Bifrost CLI"
+if ! command -v curl >/dev/null 2>&1; then
+  echo "::error::curl is required to download the Bifrost CLI"
   exit 1
 fi
 
 cli_dir="${RUNNER_TEMP}/bifrost-cli"
 mkdir -p "${cli_dir}"
-gh release download "${cli_version}" \
-  --repo bifrostsec/bifrost-cli \
-  --pattern "${asset_name}" \
-  --dir "${cli_dir}" \
-  --clobber
-
 cli_path="${cli_dir}/${asset_name}"
+download_url="https://github.com/bifrostsec/bifrost-cli/releases/download/${cli_version}/${asset_name}"
+curl --fail --location --show-error --silent \
+  --retry 5 \
+  --retry-connrefused \
+  --output "${cli_path}" \
+  "${download_url}"
+
 if [ "${RUNNER_OS}" = "Windows" ]; then
   mv "${cli_path}" "${cli_path}.exe"
   cli_path="${cli_path}.exe"

@@ -173,7 +173,9 @@ Read the [bifrost API documentation](https://docs.bifrostsec.com/api/v2/) for mo
 
 When `dependency-graph: 'true'` is used, the action exports the repository SBOM from GitHub's dependency graph API and submits the resulting SPDX document alongside any local SBOM files. GitHub documents this endpoint here: [REST API endpoints for software bill of materials (SBOM)](https://docs.github.com/en/rest/dependency-graph/sboms).
 
-The dependency graph export uses the GitHub CLI (`gh`) on the runner. GitHub-hosted runners include it by default. On self-hosted runners, ensure `gh` is installed and available on `PATH`.
+The Bifrost CLI is downloaded with `curl` directly from its pinned GitHub release URL and verified against a pinned SHA-256 checksum. Transient download failures are retried up to five times with increasing delays. Download retries use separate fixed settings from the SBOM submission retry inputs. On self-hosted runners, ensure `curl` is installed and available on `PATH`.
+
+The dependency graph export uses the GitHub CLI (`gh`) on the runner. GitHub-hosted runners include it by default. On self-hosted runners, ensure `gh` is installed and available on `PATH` when using `dependency-graph: 'true'`.
 
 Dependency graph export is only used for the current repository on its default branch. If the default branch head no longer matches the workflow commit, dependency graph export is skipped.
 
@@ -203,11 +205,17 @@ When using `dependency-graph: 'true'`, the workflow token needs permission to re
 
 **Solution:** Ensure your SBOM generation step runs before this action and outputs to the correct path. Check that each path specified in `sbom-path` matches where your SBOMs are generated.
 
+### curl not found
+
+**Error:** `curl is required to download the Bifrost CLI`
+
+**Solution:** Install `curl` on the runner and ensure it is available on `PATH`. GitHub-hosted runners include `curl` by default, but self-hosted runners may need to install it explicitly.
+
 ### GitHub CLI not found
 
-**Error:** `GitHub CLI (gh) is required to download the Bifrost CLI`
+**Error:** `GitHub CLI (gh) is required to export dependency graph SBOMs`
 
-**Solution:** Install `gh` on the runner and ensure it is available on `PATH`. GitHub-hosted runners include `gh` by default, but self-hosted runners may need to install it explicitly.
+**Solution:** Install `gh` on the runner and ensure it is available on `PATH` when using `dependency-graph: 'true'`. GitHub-hosted runners include `gh` by default, but self-hosted runners may need to install it explicitly.
 
 ### Unsupported runner platform
 
