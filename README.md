@@ -175,7 +175,7 @@ When `dependency-graph: 'true'` is used, the action exports the repository SBOM 
 
 The Bifrost CLI is downloaded with `curl` directly from its pinned GitHub release URL and verified against a pinned SHA-256 checksum. Transient download failures are retried up to five times with increasing delays. Download retries use separate fixed settings from the SBOM submission retry inputs. On self-hosted runners, ensure `curl` is installed and available on `PATH`.
 
-The dependency graph export uses the GitHub CLI (`gh`) on the runner. GitHub-hosted runners include it by default. On self-hosted runners, ensure `gh` is installed and available on `PATH` when using `dependency-graph: 'true'`.
+The dependency graph export uses `curl` for authenticated GitHub API requests and `jq` to extract the response data. GitHub-hosted runners include both tools by default. On self-hosted runners, ensure `curl` and `jq` are installed and available on `PATH` when using `dependency-graph: 'true'`.
 
 Dependency graph export is only used for the current repository on its default branch. If the default branch head no longer matches the workflow commit, dependency graph export is skipped.
 
@@ -208,14 +208,15 @@ When using `dependency-graph: 'true'`, the workflow token needs permission to re
 ### curl not found
 
 **Error:** `curl is required to download the Bifrost CLI`
+**Error:** `curl is required to export dependency graph SBOMs`
 
 **Solution:** Install `curl` on the runner and ensure it is available on `PATH`. GitHub-hosted runners include `curl` by default, but self-hosted runners may need to install it explicitly.
 
-### GitHub CLI not found
+### jq not found
 
-**Error:** `GitHub CLI (gh) is required to export dependency graph SBOMs`
+**Error:** `jq is required to export dependency graph SBOMs`
 
-**Solution:** Install `gh` on the runner and ensure it is available on `PATH` when using `dependency-graph: 'true'`. GitHub-hosted runners include `gh` by default, but self-hosted runners may need to install it explicitly.
+**Solution:** Install `jq` on the runner and ensure it is available on `PATH` when using `dependency-graph: 'true'`. GitHub-hosted runners include `jq` by default, but self-hosted runners may need to install it explicitly.
 
 ### Unsupported runner platform
 
