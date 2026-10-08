@@ -24,14 +24,15 @@ github_api() {
   local endpoint="$1"
   local json_filter="$2"
 
-  curl --fail --location --show-error --silent \
+  env -u GH_TOKEN curl --fail --location --show-error --silent \
     --retry 5 \
     --retry-connrefused \
-    -H "Authorization: Bearer ${GH_TOKEN}" \
+    -H @- \
     -H "Accept: application/vnd.github+json" \
     -H "X-GitHub-Api-Version: 2026-03-10" \
     --output "${response_path}" \
-    "${GITHUB_API_URL%/}${endpoint}" || return $?
+    "${GITHUB_API_URL%/}${endpoint}" \
+    <<< "Authorization: Bearer ${GH_TOKEN}" || return $?
 
   jq -er "${json_filter}" "${response_path}"
 }
