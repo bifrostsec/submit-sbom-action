@@ -8,7 +8,7 @@ skip_dependency_graph() {
   exit 0
 }
 
-# Check that curl and jq is available on the vm
+# Check that curl and jq are available on the vm
 for tool in curl jq; do
   if ! command -v "${tool}" >/dev/null 2>&1; then
     echo "::error::${tool} is required to export dependency graph SBOMs"
