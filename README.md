@@ -173,7 +173,7 @@ Read the [bifrost API documentation](https://docs.bifrostsec.com/api/v2/) for mo
 
 When `dependency-graph: 'true'` is used, the action exports the repository SBOM from GitHub's dependency graph API and submits the resulting SPDX document alongside any local SBOM files. GitHub documents this endpoint here: [REST API endpoints for software bill of materials (SBOM)](https://docs.github.com/en/rest/dependency-graph/sboms).
 
-The Bifrost CLI is downloaded with `curl` directly from its pinned GitHub release URL and verified against a pinned SHA-256 checksum. Transient download failures are retried up to five times with increasing delays. Download retries use separate fixed settings from the SBOM submission retry inputs. On self-hosted runners, ensure `curl` is installed and available on `PATH`.
+The Bifrost CLI is downloaded with `curl` directly from its pinned GitHub release URL and verified against a pinned SHA-256 checksum. Transient download failures are retried up to seven times with increasing delays. Download retries use separate fixed settings from the SBOM submission retry inputs. On self-hosted runners, ensure `curl` is installed and available on `PATH`.
 
 The dependency graph export uses `curl` for authenticated GitHub API requests and `jq` to extract the response data. GitHub-hosted runners include both tools by default. On self-hosted runners, ensure `curl` and `jq` are installed and available on `PATH` when using `dependency-graph: 'true'`.
 

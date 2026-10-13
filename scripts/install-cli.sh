@@ -46,7 +46,7 @@ mkdir -p "${cli_dir}"
 cli_path="${cli_dir}/${asset_name}"
 download_url="https://github.com/bifrostsec/bifrost-cli/releases/download/${cli_version}/${asset_name}"
 curl --fail --location --show-error --silent \
-  --retry 5 \
+  --retry 7 \
   --retry-connrefused \
   --output "${cli_path}" \
   "${download_url}"
