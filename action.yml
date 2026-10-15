@@ -25,6 +25,10 @@ inputs:
     description: Export and submit the GitHub dependency graph SBOM for a repository
     required: false
     default: 'false'
+  caching:
+    description: Enable caching between workflow runs
+    required: false
+    default: 'true'
   retry-attempts:
     description: Number of retry attempts for failed requests
     required: false
@@ -67,7 +71,7 @@ runs:
     - name: Restore CLI Cache
       # Outputs: cache-hit, cache-primary-key, cache-matched-key (provided by actions/cache/restore).
       id: cli-cache
-      if: ${{ steps.cli-release.outputs.cli_path != '' }}
+      if: ${{ inputs.caching == 'true' && steps.cli-release.outputs.cli_path != '' }}
       continue-on-error: true
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
@@ -96,7 +100,7 @@ runs:
         echo 'downloaded=true' >> "$GITHUB_OUTPUT"
 
     - name: Save CLI Cache
-      if: ${{ steps.install-cli.outputs.downloaded == 'true' && steps.cli-cache.outcome == 'success' && steps.cli-cache.outputs.cache-hit != 'true' }}
+      if: ${{ inputs.caching == 'true' && steps.install-cli.outputs.downloaded == 'true' && steps.cli-cache.outcome == 'success' && steps.cli-cache.outputs.cache-hit != 'true' }}
       continue-on-error: true
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:

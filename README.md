@@ -136,17 +136,18 @@ Use GitHub's dependency graph export as an additional SBOM source:
 
 ## Inputs
 
-| Input              | Description                                  | Required | Default           | Notes                                          |
-|--------------------|----------------------------------------------|----------|-------------------|------------------------------------------------|
-| `api-token`        | Bearer token for Bifrost API authentication  | Yes      | -                 | -                                              |
-| `service`          | Your Service name                            | Yes      | -                 | -                                              |
-| `service-version`  | Your Service version                         | Conditional | -              | Required unless `image` is provided            |
-| `image`            | Container image reference                    | Conditional | -              | Required unless `service-version` is provided  |
-| `sbom-path`        | Path to the SBOM file to submit, or a multiline list of SBOM paths | No | - | When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
-| `dependency-graph` | Export the GitHub dependency graph SBOM      | No       | `false`           | Uses the current repository default branch     |
-| `retry-attempts`   | Number of retry attempts for failed requests | No       | `3`               | -                                              |
-| `retry-delay`      | Delay in seconds between retry attempts      | No       | `2`               | -                                              |
-| `api-host`         | Custom API host URL                          | No       | `https://portal.bifrostsec.com` | -                                  |
+| Input              | Description                                                        | Required    | Default                         | Notes                                                                                    |
+|--------------------|--------------------------------------------------------------------|-------------|---------------------------------|------------------------------------------------------------------------------------------|
+| `api-token`        | Bearer token for Bifrost API authentication                        | Yes         | -                               | -                                                                                        |
+| `service`          | Your Service name                                                  | Yes         | -                               | -                                                                                        |
+| `service-version`  | Your Service version                                               | Conditional | -                               | Required unless `image` is provided                                                      |
+| `image`            | Container image reference                                          | Conditional | -                               | Required unless `service-version` is provided                                            |
+| `sbom-path`        | Path to the SBOM file to submit, or a multiline list of SBOM paths | No          | -                               | When unset and `dependency-graph` is `true`, only the dependency graph SBOM is submitted |
+| `dependency-graph` | Export the GitHub dependency graph SBOM                            | No          | `false`                         | Uses the current repository default branch                                               |
+| `caching`          | Enable caching between workflow runs                               | No          | `true`                          | Set to `false` to disable                                                                |
+| `retry-attempts`   | Number of retry attempts for failed requests                       | No          | `3`                             | -                                                                                        |
+| `retry-delay`      | Delay in seconds between retry attempts                            | No          | `2`                             | -                                                                                        |
+| `api-host`         | Custom API host URL                                                | No          | `https://portal.bifrostsec.com` | -                                                                                        |
 
 ## Outputs
 
