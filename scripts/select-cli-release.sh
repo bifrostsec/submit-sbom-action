@@ -4,7 +4,7 @@ set -euo pipefail
 
 cli_version="v0.3.1"
 
-# Release asset and pinned checksum per runner platform; update together with cli_version.
+# Select the asset and pinned checksum for this runner; update together with cli_version.
 case "${RUNNER_OS}:${RUNNER_ARCH}" in
   Linux:X64)
     asset_name="bifrost-linux-amd64"
@@ -36,36 +36,12 @@ case "${RUNNER_OS}:${RUNNER_ARCH}" in
     ;;
 esac
 
-if ! command -v curl >/dev/null 2>&1; then
-  echo "::error::curl is required to download the Bifrost CLI"
-  exit 1
-fi
-
 cli_dir="${RUNNER_TEMP}/bifrost-cli"
-mkdir -p "${cli_dir}"
 cli_path="${cli_dir}/${asset_name}"
-download_url="https://github.com/bifrostsec/bifrost-cli/releases/download/${cli_version}/${asset_name}"
-curl --fail --location --show-error --silent \
-  --retry 7 \
-  --retry-connrefused \
-  --output "${cli_path}" \
-  "${download_url}"
-
 if [ "${RUNNER_OS}" = "Windows" ]; then
-  mv "${cli_path}" "${cli_path}.exe"
   cli_path="${cli_path}.exe"
 fi
+download_url="https://github.com/bifrostsec/bifrost-cli/releases/download/${cli_version}/${asset_name}"
+cache_key="bifrost-cli-${asset_name}-${expected_sha}"
 
-if command -v sha256sum >/dev/null 2>&1; then
-  actual_sha="$(sha256sum "${cli_path}" | awk '{print $1}')"
-else
-  actual_sha="$(shasum -a 256 "${cli_path}" | awk '{print $1}')"
-fi
-
-if [ "${actual_sha}" != "${expected_sha}" ]; then
-  echo "::error::Checksum mismatch for ${asset_name}"
-  exit 1
-fi
-
-chmod +x "${cli_path}"
-echo "cli_path=${cli_path}" >> "${GITHUB_OUTPUT}"
+export cli_path download_url expected_sha cache_key

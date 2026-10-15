@@ -53,11 +53,55 @@ runs:
         GH_TOKEN: ${{ github.token }}
       run: bash "$GITHUB_ACTION_PATH/scripts/export-dependency-graph-sbom.sh"
 
-    - name: Install CLI
-      id: install-cli
+    - name: Select CLI Release
+      id: cli-release
       if: ${{ inputs.sbom-path != '' || steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path != '' }}
       shell: bash
-      run: bash "$GITHUB_ACTION_PATH/scripts/install-cli.sh"
+      run: |
+        source "$GITHUB_ACTION_PATH/scripts/select-cli-release.sh"
+        echo "cli_path=${cli_path}" >> "$GITHUB_OUTPUT"
+        echo "download_url=${download_url}" >> "$GITHUB_OUTPUT"
+        echo "expected_sha=${expected_sha}" >> "$GITHUB_OUTPUT"
+        echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
+
+    - name: Restore CLI Cache
+      # Outputs: cache-hit, cache-primary-key, cache-matched-key (provided by actions/cache/restore).
+      id: cli-cache
+      if: ${{ steps.cli-release.outputs.cli_path != '' }}
+      continue-on-error: true
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.cli-release.outputs.cli_path }}
+        key: ${{ steps.cli-release.outputs.cache_key }}
+
+    - name: Install and Validate CLI
+      id: install-cli
+      if: ${{ steps.cli-release.outputs.cli_path != '' }}
+      shell: bash
+      env:
+        CLI_PATH: ${{ steps.cli-release.outputs.cli_path }}
+        CLI_DOWNLOAD_URL: ${{ steps.cli-release.outputs.download_url }}
+        CLI_EXPECTED_SHA: ${{ steps.cli-release.outputs.expected_sha }}
+        CLI_CACHE_HIT: ${{ steps.cli-cache.outputs.cache-hit }}
+      run: |
+        if [[ "${CLI_CACHE_HIT}" == 'true' ]]; then
+          if bash "$GITHUB_ACTION_PATH/scripts/validate-cli.sh"; then
+            exit 0
+          fi
+          echo '::warning::Cached Bifrost CLI failed validation; downloading it again.'
+        fi
+
+        bash "$GITHUB_ACTION_PATH/scripts/download-cli.sh"
+        bash "$GITHUB_ACTION_PATH/scripts/validate-cli.sh"
+        echo 'downloaded=true' >> "$GITHUB_OUTPUT"
+
+    - name: Save CLI Cache
+      if: ${{ steps.install-cli.outputs.downloaded == 'true' && steps.cli-cache.outcome == 'success' && steps.cli-cache.outputs.cache-hit != 'true' }}
+      continue-on-error: true
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.cli-release.outputs.cli_path }}
+        key: ${{ steps.cli-release.outputs.cache_key }}
 
     - name: Upload SBOM
       if: ${{ inputs.sbom-path != '' || steps.dependency-graph-sbom.outputs.dependency_graph_sbom_path != '' }}
@@ -74,5 +118,5 @@ runs:
         ACTION_API_HOST: ${{ inputs.api-host }}
         ACTION_GIT_REPO_PATH: ${{ github.workspace }}
         ACTION_GIT_BRANCH: ${{ github.head_ref || github.ref_name }}
-        CLI_PATH: ${{ steps.install-cli.outputs.cli_path }}
+        CLI_PATH: ${{ steps.cli-release.outputs.cli_path }}
       run: bash "$GITHUB_ACTION_PATH/scripts/upload-sbom.sh"
