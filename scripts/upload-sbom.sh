@@ -26,6 +26,22 @@ if [ -z "${ACTION_SERVICE_VERSION:-}" ] && [ -z "${ACTION_IMAGE:-}" ]; then
   exit 1
 fi
 
+# Authenticate with either a bifrost API token or the GitHub OIDC token of the
+# job, which the CLI exchanges for a short-lived access token when given an
+# organization id.
+if [ -n "${ACTION_API_TOKEN:-}" ] && [ -n "${ACTION_ORG_ID:-}" ]; then
+  echo "::error::Provide either api-token or org-id, not both. Use api-token to authenticate with a bifrost API token, or org-id to authenticate with the GitHub OIDC token of the job."
+  exit 1
+fi
+if [ -z "${ACTION_API_TOKEN:-}" ] && [ -z "${ACTION_ORG_ID:-}" ]; then
+  echo "::error::Either api-token or org-id must be provided. Use api-token to authenticate with a bifrost API token, or org-id to authenticate with the GitHub OIDC token of the job."
+  exit 1
+fi
+if [ -n "${ACTION_ORG_ID:-}" ] && { [ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ] || [ -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]; }; then
+  echo '::error::GitHub OIDC authentication with org-id requires the job to grant `permissions: id-token: write`. GitHub does not make an OIDC token available to workflows triggered by pull requests from forked repositories.'
+  exit 1
+fi
+
 args=(
   "--service=${ACTION_SERVICE}"
 )
@@ -48,6 +64,11 @@ if [ -n "${ACTION_GIT_BRANCH:-}" ]; then
   args+=("--git-branch=${ACTION_GIT_BRANCH}")
 fi
 
-BIFROST_API_KEY="${ACTION_API_TOKEN}" \
-BIFROST_SERVER_URL="${ACTION_API_HOST}" \
-  "${CLI_PATH}" "${args[@]}" sbom upload "${sbom_paths[@]}"
+export BIFROST_SERVER_URL="${ACTION_API_HOST}"
+if [ -n "${ACTION_ORG_ID:-}" ]; then
+  export BIFROST_ORG_ID="${ACTION_ORG_ID}"
+else
+  export BIFROST_API_KEY="${ACTION_API_TOKEN}"
+fi
+
+"${CLI_PATH}" "${args[@]}" sbom upload "${sbom_paths[@]}"
