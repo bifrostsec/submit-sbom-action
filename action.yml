@@ -7,11 +7,11 @@ branding:
 inputs:
   api-token:
     description: >-
-      Bearer token for Bifrost API authentication. Required unless org-id is provided.
+      Bearer token for bifrost API authentication. Required unless org-id is provided.
     required: false
   org-id:
     description: >-
-      Bifrost organization id used to authenticate with the GitHub OIDC token of the job
+      bifrost organization id used to authenticate with the GitHub OIDC token of the job
       instead of an API token. Requires the job permission `id-token: write`.
       Required unless api-token is provided.
     required: false
@@ -99,7 +99,7 @@ runs:
           if bash "$GITHUB_ACTION_PATH/scripts/validate-cli.sh"; then
             exit 0
           fi
-          echo '::warning::Cached Bifrost CLI failed validation; downloading it again.'
+          echo '::warning::Cached bifrost CLI failed validation; downloading it again.'
         fi
 
         bash "$GITHUB_ACTION_PATH/scripts/download-cli.sh"
