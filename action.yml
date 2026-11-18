@@ -6,8 +6,15 @@ branding:
   color: 'white'
 inputs:
   api-token:
-    description: Bearer token for Bifrost API authentication
-    required: true
+    description: >-
+      Bearer token for bifrost API authentication. Required unless org-id is provided.
+    required: false
+  org-id:
+    description: >-
+      bifrost organization id used to authenticate with the GitHub OIDC token of the job
+      instead of an API token. Requires the job permission `id-token: write`.
+      Required unless api-token is provided.
+    required: false
   service:
     description: Service name
     required: true
@@ -44,6 +51,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Validate Authentication Inputs
+      shell: bash
+      env:
+        ACTION_API_TOKEN: ${{ inputs.api-token }}
+        ACTION_ORG_ID: ${{ inputs.org-id }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/validate-auth.sh"
+
     - name: Warn When No SBOM Source Is Configured
       if: ${{ inputs.sbom-path == '' && inputs.dependency-graph != 'true' }}
       shell: bash
@@ -92,7 +106,7 @@ runs:
           if bash "$GITHUB_ACTION_PATH/scripts/validate-cli.sh"; then
             exit 0
           fi
-          echo '::warning::Cached Bifrost CLI failed validation; downloading it again.'
+          echo '::warning::Cached bifrost CLI failed validation; downloading it again.'
         fi
 
         bash "$GITHUB_ACTION_PATH/scripts/download-cli.sh"
@@ -112,6 +126,7 @@ runs:
       shell: bash
       env:
         ACTION_API_TOKEN: ${{ inputs.api-token }}
+        ACTION_ORG_ID: ${{ inputs.org-id }}
         ACTION_SERVICE: ${{ inputs.service }}
         ACTION_SERVICE_VERSION: ${{ inputs.service-version }}
         ACTION_IMAGE: ${{ inputs.image }}

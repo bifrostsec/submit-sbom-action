@@ -48,6 +48,14 @@ if [ -n "${ACTION_GIT_BRANCH:-}" ]; then
   args+=("--git-branch=${ACTION_GIT_BRANCH}")
 fi
 
-BIFROST_API_KEY="${ACTION_API_TOKEN}" \
-BIFROST_SERVER_URL="${ACTION_API_HOST}" \
-  "${CLI_PATH}" "${args[@]}" sbom upload "${sbom_paths[@]}"
+# Authenticate with either a bifrost API token or the GitHub OIDC token of the
+# job, which the CLI exchanges for a short-lived access token when given an
+# organization id. The inputs were validated by validate-auth.sh before this step.
+export BIFROST_SERVER_URL="${ACTION_API_HOST}"
+if [ -n "${ACTION_ORG_ID:-}" ]; then
+  export BIFROST_ORG_ID="${ACTION_ORG_ID}"
+else
+  export BIFROST_API_KEY="${ACTION_API_TOKEN}"
+fi
+
+"${CLI_PATH}" "${args[@]}" sbom upload "${sbom_paths[@]}"
