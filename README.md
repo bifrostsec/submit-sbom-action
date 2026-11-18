@@ -292,11 +292,11 @@ When using `org-id`, the job must grant `id-token: write` so that `bifrost-cli` 
 
 ### GitHub OIDC token not available
 
-**Error:** `GitHub OIDC authentication with org-id requires the job to grant permissions: id-token: write`
+**Error:** `GitHub OIDC authentication with org-id requires the job to grant the id-token: write permission. GitHub does not make an OIDC token available to workflows triggered by pull requests from forked repositories.`
 
 **Solution:**
 - Add `id-token: write` to the `permissions` of the job or workflow that runs this action
-- GitHub does not make an OIDC token available to workflows triggered by pull requests from forked repositories. Use another trigger, or `api-token`, for those runs
+- For workflows triggered by pull requests from forked repositories, use another trigger or `api-token`
 
 ### GitHub OIDC token exchange failed
 
