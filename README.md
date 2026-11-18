@@ -47,7 +47,7 @@ Instead of storing a long-lived API token as a secret, the action can authentica
 
 1. Link the GitHub organization that owns the repository to your bifrost organization in the bifrost portal.
 2. Grant the job the `id-token: write` permission.
-3. Provide `org-id` with your bifrost organization id (`org_...`) instead of `api-token`.
+3. Provide `org-id` with your bifrost organization id (`org_...`) instead of `api-token`. This can be found either under organization settings in the portal or in the URL when viewing your organization in the portal.
 
 ```yaml
 name: build
