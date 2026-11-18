@@ -51,6 +51,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Validate Authentication Inputs
+      shell: bash
+      env:
+        ACTION_API_TOKEN: ${{ inputs.api-token }}
+        ACTION_ORG_ID: ${{ inputs.org-id }}
+      run: bash "$GITHUB_ACTION_PATH/scripts/validate-auth.sh"
+
     - name: Warn When No SBOM Source Is Configured
       if: ${{ inputs.sbom-path == '' && inputs.dependency-graph != 'true' }}
       shell: bash
